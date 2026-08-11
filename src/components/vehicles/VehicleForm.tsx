@@ -12,7 +12,7 @@ export interface VehicleFormValues {
   tuv_date: string
   service_date: string
   tire_date: string
-  tire_season: Extract<VehicleAppointmentType, 'reifenwechsel_sommer' | 'reifenwechsel_winter'>
+  tire_season: Extract<VehicleAppointmentType, 'reifenwechsel_sommer' | 'reifenwechsel_winter' | 'reifenwechsel_ganzjahr'>
 }
 
 export const emptyVehicleFormValues: VehicleFormValues = {
@@ -87,6 +87,7 @@ export function VehicleForm({ initialValues, onSubmit, onDelete, submitting }: V
           <Select value={values.tire_season} onChange={(e) => set('tire_season', e.target.value as VehicleFormValues['tire_season'])}>
             <option value="reifenwechsel_sommer">Sommer</option>
             <option value="reifenwechsel_winter">Winter</option>
+            <option value="reifenwechsel_ganzjahr">Ganzjahr</option>
           </Select>
         </FormField>
       </div>

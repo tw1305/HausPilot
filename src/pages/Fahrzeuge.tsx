@@ -21,6 +21,7 @@ const appointmentLabels: Record<VehicleAppointmentType, string> = {
   service: 'Service',
   reifenwechsel_sommer: 'Sommerreifen',
   reifenwechsel_winter: 'Winterreifen',
+  reifenwechsel_ganzjahr: 'Ganzjahresreifen',
   sonstiges: 'Sonstiges',
 }
 
@@ -95,6 +96,8 @@ const DELETE_APPOINTMENT = /* GraphQL */ `
   }
 `
 
+const TIRE_TYPES: VehicleAppointmentType[] = ['reifenwechsel_sommer', 'reifenwechsel_winter', 'reifenwechsel_ganzjahr']
+
 function findAppointment(vehicle: VehicleWithAppointments, type: VehicleAppointmentType) {
   return vehicle.vehicle_appointments.find((a) => a.type === type)
 }
@@ -109,7 +112,8 @@ function valuesFromVehicle(vehicle?: VehicleWithAppointments): VehicleFormValues
   const service = findAppointment(vehicle, 'service')
   const tireSommer = findAppointment(vehicle, 'reifenwechsel_sommer')
   const tireWinter = findAppointment(vehicle, 'reifenwechsel_winter')
-  const tire = tireSommer ?? tireWinter
+  const tireGanzjahr = findAppointment(vehicle, 'reifenwechsel_ganzjahr')
+  const tire = tireSommer ?? tireWinter ?? tireGanzjahr
   return {
     license_plate: vehicle.license_plate,
     make: vehicle.make,
@@ -119,7 +123,13 @@ function valuesFromVehicle(vehicle?: VehicleWithAppointments): VehicleFormValues
     tuv_date: tuv?.due_date ?? '',
     service_date: service?.due_date ?? '',
     tire_date: tire?.due_date ?? '',
-    tire_season: tire === tireWinter ? 'reifenwechsel_winter' : 'reifenwechsel_sommer',
+    tire_season: !tire
+      ? 'reifenwechsel_sommer'
+      : tire === tireWinter
+        ? 'reifenwechsel_winter'
+        : tire === tireGanzjahr
+          ? 'reifenwechsel_ganzjahr'
+          : 'reifenwechsel_sommer',
   }
 }
 
@@ -195,10 +205,12 @@ export default function Fahrzeuge() {
       }
 
       const existingAppointments = current?.vehicle_appointments ?? []
+      const otherTireTypes = TIRE_TYPES.filter((t) => t !== values.tire_season)
       await Promise.all([
         upsertAppointment(vehicleId, existingAppointments, 'tuv_pickerl', values.tuv_date),
         upsertAppointment(vehicleId, existingAppointments, 'service', values.service_date),
         upsertAppointment(vehicleId, existingAppointments, values.tire_season, values.tire_date),
+        ...otherTireTypes.map((type) => upsertAppointment(vehicleId, existingAppointments, type, '')),
       ])
 
       setEditing(null)

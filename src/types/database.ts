@@ -3,6 +3,7 @@ export type VehicleAppointmentType =
   | 'service'
   | 'reifenwechsel_sommer'
   | 'reifenwechsel_winter'
+  | 'reifenwechsel_ganzjahr'
   | 'sonstiges'
 
 export type ContractCategory =

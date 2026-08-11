@@ -43,7 +43,7 @@ create table vehicle_appointments (
   id            uuid primary key default gen_random_uuid(),
   household_id  uuid not null,
   vehicle_id    uuid not null references vehicles(id) on delete cascade,
-  type          text not null check (type in ('tuv_pickerl','service','reifenwechsel_sommer','reifenwechsel_winter','sonstiges')),
+  type          text not null check (type in ('tuv_pickerl','service','reifenwechsel_sommer','reifenwechsel_winter','reifenwechsel_ganzjahr','sonstiges')),
   due_date      date not null,
   notes         text,
   completed_at  date,

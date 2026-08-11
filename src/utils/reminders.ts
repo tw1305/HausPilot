@@ -39,6 +39,7 @@ const vehicleAppointmentMeta: Record<
   service: { type: 'vehicle_service', title: 'Service fällig' },
   reifenwechsel_sommer: { type: 'vehicle_tire', title: 'Sommerreifen montieren' },
   reifenwechsel_winter: { type: 'vehicle_tire', title: 'Winterreifen montieren' },
+  reifenwechsel_ganzjahr: { type: 'vehicle_tire', title: 'Ganzjahresreifen wechseln' },
   sonstiges: { type: 'vehicle_service', title: 'Fahrzeugtermin' },
 }
 
