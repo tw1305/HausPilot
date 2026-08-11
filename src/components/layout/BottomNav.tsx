@@ -20,7 +20,7 @@ const tabs = navOrder.map((key) => ({
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-[#c9b896] bg-[#ddd0b3]/95 backdrop-blur safe-bottom">
+    <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-black/20 bg-[#0f2114]/95 backdrop-blur safe-bottom">
       <div className="max-w-md mx-auto grid grid-cols-7">
         {tabs.map(({ cat, Icon, end }) => (
           <NavLink
@@ -31,8 +31,8 @@ export function BottomNav() {
           >
             {({ isActive }) => (
               <>
-                <Icon className={`w-5 h-5 ${isActive ? cat.text : 'text-slate-400'}`} />
-                <span className={isActive ? cat.text : 'text-slate-400'}>{cat.label}</span>
+                <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-400' : 'text-emerald-100/40'}`} />
+                <span className={isActive ? 'text-emerald-400' : 'text-emerald-100/40'}>{cat.label}</span>
               </>
             )}
           </NavLink>

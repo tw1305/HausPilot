@@ -32,7 +32,7 @@ function NoteRow({
         type="button"
         onClick={onToggle}
         className={`w-5 h-5 shrink-0 rounded-md border flex items-center justify-center transition-colors ${
-          note.is_done ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300'
+          note.is_done ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'
         }`}
         aria-label={note.is_done ? 'Als offen markieren' : 'Als erledigt markieren'}
       >
@@ -99,11 +99,11 @@ export function MerkzettelSection() {
   return (
     <section className="mb-6">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Merkzettel</h2>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-700">Merkzettel</h3>
         <button
           type="button"
           onClick={() => startEdit('new')}
-          className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-slate-700"
+          className="flex items-center gap-1 text-xs font-medium text-emerald-700 hover:text-emerald-800"
         >
           <IconPlus className="w-3.5 h-3.5" /> Notiz
         </button>
