@@ -1,0 +1,3 @@
+Lege hier das dunkle Jungle-Bild als  jungle.jpg  ab.
+Es wird als Icon fuer die Kategorie "Garten" verwendet
+(untere Navigation + Seitenkopf). Fehlt es, erscheint das Blatt-Icon.
