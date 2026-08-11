@@ -29,6 +29,7 @@ export const documentCategoryLabels: Record<DocumentCategory, string> = {
   kleidung: 'Kleidung',
   gesundheit: 'Gesundheit & Apotheke',
   freizeit: 'Freizeit',
+  vinted: 'Vinted',
   sonstiges: 'Sonstiges',
 }
 

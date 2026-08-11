@@ -144,7 +144,7 @@ create table reminders (
 create table documents (
   id             uuid primary key default gen_random_uuid(),
   household_id   uuid not null,
-  category       text not null check (category in ('lebensmittel','haushalt','reparatur_handwerker','elektronik','kleidung','gesundheit','freizeit','sonstiges')),
+  category       text not null check (category in ('lebensmittel','haushalt','reparatur_handwerker','elektronik','kleidung','gesundheit','freizeit','vinted','sonstiges')),
   vendor         text,
   amount         numeric(10,2),
   document_date  date,

@@ -28,6 +28,7 @@ export type DocumentCategory =
   | 'kleidung'
   | 'gesundheit'
   | 'freizeit'
+  | 'vinted'
   | 'sonstiges'
 
 export interface Household {
