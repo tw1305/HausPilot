@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageHeader } from '../components/layout/PageHeader'
+import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -183,56 +183,53 @@ export default function Vertraege() {
   return (
     <>
       <AppDecor />
-      <PageHeader
-        title="Verträge & Kosten"
-        category={cat}
-        icon={<IconDocument className="w-6 h-6" />}
-        action={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => setShowCosts(true)}>
-              Kostenübersicht
-            </Button>
-            <Button accent={cat.solid} onClick={() => setEditing('new')}>
-              + Vertrag
-            </Button>
-          </div>
-        }
-      />
+      <PageHero title="Verträge" category={cat} icon={<IconDocument className="w-6 h-6" />} />
 
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-
-      {loading ? (
-        <p className="text-sm text-slate-400">Lädt …</p>
-      ) : contracts.length === 0 ? (
-        <EmptyState title="Noch keine Verträge erfasst" hint="Erfasse Strom, Internet, Versicherungen und mehr." />
-      ) : (
-        <div className="space-y-3">
-          {contracts.map((contract) => (
-            <Card
-              key={contract.id}
-              className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
-              onClick={() => setEditing(contract)}
-            >
-              <div className="flex items-center gap-3">
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
-                  <IconDocument className="w-5 h-5" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800">{contract.provider}</p>
-                  <p className="text-xs text-slate-400">
-                    {contractCategoryLabels[contract.category]}
-                    {contract.vehicle_id ? ` · ${vehicleLabel(contract.vehicle_id) ?? ''}` : ''}
-                    {contract.next_payment_date ? ` · nächste Zahlung ${formatDateDe(contract.next_payment_date)}` : ''}
-                  </p>
-                </div>
-                {contract.monthly_amount !== null && (
-                  <p className="text-sm font-medium text-slate-600 shrink-0">{formatEUR(contract.monthly_amount)}/Mo.</p>
-                )}
-              </div>
-            </Card>
-          ))}
+      <div className="px-4 pt-5">
+        <div className="flex justify-end gap-2 mb-3">
+          <Button variant="secondary" onClick={() => setShowCosts(true)}>
+            Kostenübersicht
+          </Button>
+          <Button accent={cat.solid} onClick={() => setEditing('new')}>
+            + Vertrag
+          </Button>
         </div>
-      )}
+
+        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+        {loading ? (
+          <p className="text-sm text-slate-400">Lädt …</p>
+        ) : contracts.length === 0 ? (
+          <EmptyState title="Noch keine Verträge erfasst" hint="Erfasse Strom, Internet, Versicherungen und mehr." />
+        ) : (
+          <div className="space-y-3">
+            {contracts.map((contract) => (
+              <Card
+                key={contract.id}
+                className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
+                onClick={() => setEditing(contract)}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
+                    <IconDocument className="w-5 h-5" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800">{contract.provider}</p>
+                    <p className="text-xs text-slate-400">
+                      {contractCategoryLabels[contract.category]}
+                      {contract.vehicle_id ? ` · ${vehicleLabel(contract.vehicle_id) ?? ''}` : ''}
+                      {contract.next_payment_date ? ` · nächste Zahlung ${formatDateDe(contract.next_payment_date)}` : ''}
+                    </p>
+                  </div>
+                  {contract.monthly_amount !== null && (
+                    <p className="text-sm font-medium text-slate-600 shrink-0">{formatEUR(contract.monthly_amount)}/Mo.</p>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {editing && (
         <Modal title={editing === 'new' ? 'Vertrag hinzufügen' : 'Vertrag bearbeiten'} onClose={() => setEditing(null)}>

@@ -19,6 +19,8 @@ export interface CategoryTheme {
   solid: string
   /** Kleiner Farbpunkt (Erinnerungsliste) */
   dot: string
+  /** Dunkler Verlauf für den Hero-Header der Seite (gleiche Tonalität wie die Start-Seite, eigener Farbton je Kategorie) */
+  heroGradient: string
 }
 
 // Durchgängige Farbsprache: einheitliches Layout, neutrale Flächen,
@@ -32,6 +34,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     tintBg: 'bg-slate-200',
     solid: 'bg-slate-900 hover:bg-slate-800',
     dot: 'bg-slate-900',
+    heroGradient: 'bg-gradient-to-b from-[#0c1c12] via-[#16301b] to-[#204223]',
   },
   fahrzeuge: {
     key: 'fahrzeuge',
@@ -41,6 +44,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     tintBg: 'bg-red-100',
     solid: 'bg-red-800 hover:bg-red-900',
     dot: 'bg-red-700',
+    heroGradient: 'bg-gradient-to-b from-[#190a0a] via-[#3f1414] to-[#611c19]',
   },
   garten: {
     key: 'garten',
@@ -50,6 +54,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     tintBg: 'bg-green-100',
     solid: 'bg-green-800 hover:bg-green-900',
     dot: 'bg-green-700',
+    heroGradient: 'bg-gradient-to-b from-[#0c1c12] via-[#16301b] to-[#204223]',
   },
   vertraege: {
     key: 'vertraege',
@@ -60,6 +65,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     tintBg: 'bg-[#efe3d1]',
     solid: 'bg-[#a5623f] hover:bg-[#8c5133]',
     dot: 'bg-[#a5623f]',
+    heroGradient: 'bg-gradient-to-b from-[#170f0a] via-[#3a2216] to-[#5c341f]',
   },
   einkaufsliste: {
     key: 'einkaufsliste',
@@ -71,6 +77,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     // Button-Ton bewusst einen Tick heller als die Akzentfarbe (weiße Schrift statt schwarz, wie bei den anderen Reitern)
     solid: 'bg-[#8a6544] hover:bg-[#7c5a3a]',
     dot: 'bg-[#7c5a3a]',
+    heroGradient: 'bg-gradient-to-b from-[#120f0b] via-[#2e2620] to-[#47392c]',
   },
   haustechnik: {
     key: 'haustechnik',
@@ -80,6 +87,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     tintBg: 'bg-slate-100',
     solid: 'bg-slate-700 hover:bg-slate-800',
     dot: 'bg-slate-600',
+    heroGradient: 'bg-gradient-to-b from-[#0a0e12] via-[#1c2733] to-[#2c3e4f]',
   },
   dokumente: {
     key: 'dokumente',
@@ -89,6 +97,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
     tintBg: 'bg-amber-100',
     solid: 'bg-amber-600 hover:bg-amber-700',
     dot: 'bg-amber-500',
+    heroGradient: 'bg-gradient-to-b from-[#160f05] via-[#3d2a08] to-[#664611]',
   },
 }
 

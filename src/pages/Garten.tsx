@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageHeader } from '../components/layout/PageHeader'
+import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -208,63 +208,62 @@ export default function Garten() {
   return (
     <>
       <AppDecor />
-      <PageHeader
-        title="Garten"
-        category={cat}
-        icon={<IconLeaf className="w-6 h-6" />}
-        action={
+      <PageHero title="Garten" category={cat} icon={<IconLeaf className="w-6 h-6" />} />
+
+      <div className="px-4 pt-5">
+        <div className="flex justify-end mb-3">
           <Button accent={cat.solid} onClick={() => setEditing('new')}>
             + Pflanze
           </Button>
-        }
-      />
+        </div>
 
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
-      {loading ? (
-        <p className="text-sm text-slate-400">Lädt …</p>
-      ) : plants.length === 0 ? (
-        <EmptyState title="Noch keine Pflanzen angelegt" hint="Füge Hecken, Bäume oder Beete hinzu." />
-      ) : (
-        <div className="space-y-3">
-          {plants.map((plant) => {
-            const due = nextDueDate(plant)
-            const template = plant.plant_type ? findPlantCareTemplate(plant.plant_type) : undefined
-            return (
-              <Card
-                key={plant.id}
-                className="cursor-pointer hover:border-slate-300 transition-colors"
-                onClick={() => setEditing(plant)}
-              >
-                <div className="flex items-center gap-3">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
-                    <IconLeaf className="w-5 h-5" />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800">{plant.name}</p>
-                    <p className="text-xs text-slate-400">
-                      {template?.label ?? plant.location ?? ' '}
-                      {plant.planted_on ? ` · gepflanzt ${new Date(plant.planted_on).getFullYear()}` : ''}
-                    </p>
-                  </div>
-                  {due && (
-                    <div className="text-right shrink-0">
-                      <p className="text-xs text-slate-400">nächste Pflege</p>
-                      <p
-                        className={`text-xs font-medium ${
-                          daysUntil(due) <= 30 ? 'text-amber-600' : 'text-slate-500'
-                        }`}
-                      >
-                        {formatDateDe(due)}
+        {loading ? (
+          <p className="text-sm text-slate-400">Lädt …</p>
+        ) : plants.length === 0 ? (
+          <EmptyState title="Noch keine Pflanzen angelegt" hint="Füge Hecken, Bäume oder Beete hinzu." />
+        ) : (
+          <div className="space-y-3">
+            {plants.map((plant) => {
+              const due = nextDueDate(plant)
+              const template = plant.plant_type ? findPlantCareTemplate(plant.plant_type) : undefined
+              return (
+                <Card
+                  key={plant.id}
+                  className="cursor-pointer hover:border-slate-300 transition-colors"
+                  onClick={() => setEditing(plant)}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
+                      <IconLeaf className="w-5 h-5" />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800">{plant.name}</p>
+                      <p className="text-xs text-slate-400">
+                        {template?.label ?? plant.location ?? ' '}
+                        {plant.planted_on ? ` · gepflanzt ${new Date(plant.planted_on).getFullYear()}` : ''}
                       </p>
                     </div>
-                  )}
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+                    {due && (
+                      <div className="text-right shrink-0">
+                        <p className="text-xs text-slate-400">nächste Pflege</p>
+                        <p
+                          className={`text-xs font-medium ${
+                            daysUntil(due) <= 30 ? 'text-amber-600' : 'text-slate-500'
+                          }`}
+                        >
+                          {formatDateDe(due)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       {editing && (
         <Modal title={editing === 'new' ? 'Pflanze hinzufügen' : 'Pflanze bearbeiten'} onClose={() => setEditing(null)}>

@@ -21,13 +21,13 @@ const tabs = navOrder.map((key) => ({
 export function BottomNav() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-black/20 bg-[#0f2114]/95 backdrop-blur safe-bottom">
-      <div className="max-w-md mx-auto grid grid-cols-7">
+      <div className="max-w-md mx-auto flex items-center justify-between px-2">
         {tabs.map(({ cat, Icon, end }) => (
           <NavLink
             key={cat.path}
             to={cat.path}
             end={end}
-            className="flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] transition-colors"
+            className="flex shrink-0 flex-col items-center justify-center gap-0.5 py-2 text-[11px] transition-colors"
           >
             {({ isActive }) => (
               <>

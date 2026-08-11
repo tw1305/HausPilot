@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageHeader } from '../components/layout/PageHeader'
+import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -194,65 +194,64 @@ export default function Dokumente() {
   return (
     <>
       <AppDecor />
-      <PageHeader
-        title="Dokumente"
-        category={cat}
-        icon={<IconReceipt className="w-6 h-6" />}
-        action={
+      <PageHero title="Dokumente" category={cat} icon={<IconReceipt className="w-6 h-6" />} />
+
+      <div className="px-4 pt-5">
+        <div className="flex justify-end mb-3">
           <Button accent={cat.solid} onClick={() => setEditing('new')}>
             + Beleg
           </Button>
-        }
-      />
-
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-
-      {loading ? (
-        <p className="text-sm text-slate-400">Lädt …</p>
-      ) : documents.length === 0 ? (
-        <EmptyState
-          title="Noch keine Dokumente erfasst"
-          hint="Fotografiere Rechnungen und Belege, um sie später wiederzufinden."
-        />
-      ) : (
-        <div className="space-y-3">
-          {documents.map((doc) => (
-            <Card
-              key={doc.id}
-              className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
-              onClick={() => setEditing(doc)}
-            >
-              <div className="flex items-center gap-3">
-                {doc.document_files[0] ? (
-                  <DocumentPhoto
-                    fileId={doc.document_files[0].file_id}
-                    alt=""
-                    className="h-10 w-10 shrink-0 rounded-xl object-cover"
-                  />
-                ) : (
-                  <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}
-                  >
-                    <IconReceipt className="w-5 h-5" />
-                  </span>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800">
-                    {doc.vendor?.trim() || documentCategoryLabels[doc.category]}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {documentCategoryLabels[doc.category]}
-                    {doc.document_date ? ` · ${formatDateDe(doc.document_date)}` : ''}
-                  </p>
-                </div>
-                {doc.amount !== null && (
-                  <p className="text-sm font-medium text-slate-600 shrink-0">{formatEUR(doc.amount)}</p>
-                )}
-              </div>
-            </Card>
-          ))}
         </div>
-      )}
+
+        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+        {loading ? (
+          <p className="text-sm text-slate-400">Lädt …</p>
+        ) : documents.length === 0 ? (
+          <EmptyState
+            title="Noch keine Dokumente erfasst"
+            hint="Fotografiere Rechnungen und Belege, um sie später wiederzufinden."
+          />
+        ) : (
+          <div className="space-y-3">
+            {documents.map((doc) => (
+              <Card
+                key={doc.id}
+                className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
+                onClick={() => setEditing(doc)}
+              >
+                <div className="flex items-center gap-3">
+                  {doc.document_files[0] ? (
+                    <DocumentPhoto
+                      fileId={doc.document_files[0].file_id}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}
+                    >
+                      <IconReceipt className="w-5 h-5" />
+                    </span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800">
+                      {doc.vendor?.trim() || documentCategoryLabels[doc.category]}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {documentCategoryLabels[doc.category]}
+                      {doc.document_date ? ` · ${formatDateDe(doc.document_date)}` : ''}
+                    </p>
+                  </div>
+                  {doc.amount !== null && (
+                    <p className="text-sm font-medium text-slate-600 shrink-0">{formatEUR(doc.amount)}</p>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {editing && (
         <Modal title={editing === 'new' ? 'Beleg hinzufügen' : 'Beleg bearbeiten'} onClose={() => setEditing(null)}>

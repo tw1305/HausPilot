@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageHeader } from '../components/layout/PageHeader'
+import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -240,60 +240,61 @@ export default function Fahrzeuge() {
   return (
     <>
       <AppDecor />
-      <PageHeader
-        title="Fahrzeuge"
-        category={cat}
-        icon={<IconCar className="w-6 h-6" />}
-        action={<Button accent={cat.solid} onClick={() => setEditing('new')}>+ Fahrzeug</Button>}
-      />
+      <PageHero title="Fahrzeuge" category={cat} icon={<IconCar className="w-6 h-6" />} />
 
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+      <div className="px-4 pt-5">
+        <div className="flex justify-end mb-3">
+          <Button accent={cat.solid} onClick={() => setEditing('new')}>+ Fahrzeug</Button>
+        </div>
 
-      {loading ? (
-        <p className="text-sm text-slate-400">Lädt …</p>
-      ) : vehicles.length === 0 ? (
-        <EmptyState title="Noch keine Fahrzeuge" hint="Füge dein erstes Fahrzeug hinzu." />
-      ) : (
-        <div className="space-y-3">
-          {vehicles.map((vehicle) => {
-            const next = nextAppointment(vehicle)
-            return (
-              <Card
-                key={vehicle.id}
-                className="cursor-pointer hover:border-slate-300 transition-colors"
-                onClick={() => setEditing(vehicle)}
-              >
-                <div className="flex items-center gap-3">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
-                    <IconCar className="w-5 h-5" />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800">
-                      {vehicle.make} {vehicle.model}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {vehicle.license_plate}
-                      {vehicle.year_built ? ` · ${vehicle.year_built}` : ''}
-                    </p>
-                  </div>
-                  {next && (
-                    <div className="text-right shrink-0">
-                      <p className="text-xs text-slate-400">{appointmentLabels[next.type]}</p>
-                      <p
-                        className={`text-xs font-medium ${
-                          daysUntil(next.due_date) <= 30 ? 'text-amber-600' : 'text-slate-500'
-                        }`}
-                      >
-                        {formatDateDe(next.due_date)}
+        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+        {loading ? (
+          <p className="text-sm text-slate-400">Lädt …</p>
+        ) : vehicles.length === 0 ? (
+          <EmptyState title="Noch keine Fahrzeuge" hint="Füge dein erstes Fahrzeug hinzu." />
+        ) : (
+          <div className="space-y-3">
+            {vehicles.map((vehicle) => {
+              const next = nextAppointment(vehicle)
+              return (
+                <Card
+                  key={vehicle.id}
+                  className="cursor-pointer hover:border-slate-300 transition-colors"
+                  onClick={() => setEditing(vehicle)}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
+                      <IconCar className="w-5 h-5" />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800">
+                        {vehicle.make} {vehicle.model}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {vehicle.license_plate}
+                        {vehicle.year_built ? ` · ${vehicle.year_built}` : ''}
                       </p>
                     </div>
-                  )}
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+                    {next && (
+                      <div className="text-right shrink-0">
+                        <p className="text-xs text-slate-400">{appointmentLabels[next.type]}</p>
+                        <p
+                          className={`text-xs font-medium ${
+                            daysUntil(next.due_date) <= 30 ? 'text-amber-600' : 'text-slate-500'
+                          }`}
+                        >
+                          {formatDateDe(next.due_date)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
 
       {editing && (
         <Modal title={editing === 'new' ? 'Fahrzeug hinzufügen' : 'Fahrzeug bearbeiten'} onClose={() => setEditing(null)}>

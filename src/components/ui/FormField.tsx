@@ -26,14 +26,14 @@ export function FormField({ label, children, required }: FormFieldProps) {
 const inputClasses =
   'w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand/60 focus:border-brand'
 
-export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={inputClasses} {...props} />
+export function Input({ className = '', ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return <input className={`${inputClasses} ${className}`} {...props} />
 }
 
-export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={`${inputClasses} resize-none`} rows={3} {...props} />
+export function Textarea({ className = '', ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea className={`${inputClasses} resize-none ${className}`} rows={3} {...props} />
 }
 
-export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={inputClasses} {...props} />
+export function Select({ className = '', ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select className={`${inputClasses} ${className}`} {...props} />
 }

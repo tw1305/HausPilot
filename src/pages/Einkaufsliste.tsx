@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { PageHeader } from '../components/layout/PageHeader'
+import { PageHero } from '../components/layout/PageHero'
 import { IconTrash, IconShoppingCart } from '../components/layout/NavIcons'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -90,37 +90,38 @@ export default function Einkaufsliste() {
   return (
     <>
       <AppDecor />
-      <PageHeader
+      <PageHero
         title="Einkaufsliste"
         subtitle={shoppingStore ? `Sortiert für ${storeLabels[shoppingStore]}` : 'Gemeinsam abhaken'}
         category={cat}
         icon={<IconShoppingCart className="w-6 h-6" />}
-        action={
-          shoppingStore ? (
-            <Button variant="secondary" onClick={() => setShoppingStore(null)}>
-              Einkauf beenden
-            </Button>
-          ) : (
-            <Button accent={cat.solid} onClick={() => setPickingStore(true)}>
-              Einkauf erledigen
-            </Button>
-          )
-        }
       />
 
+      <div className="px-4 pt-5">
+      <div className="flex justify-end mb-3">
+        {shoppingStore ? (
+          <Button variant="secondary" onClick={() => setShoppingStore(null)}>
+            Einkauf beenden
+          </Button>
+        ) : (
+          <Button accent={cat.solid} onClick={() => setPickingStore(true)}>
+            Einkauf erledigen
+          </Button>
+        )}
+      </div>
       <form onSubmit={handleSubmit} className="flex gap-2 mb-5">
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="z. B. Milch"
-          className="flex-[2]"
+          className="flex-[2] min-w-0"
           aria-label="Artikel"
         />
         <Input
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           placeholder="Menge"
-          className="flex-1"
+          className="flex-1 min-w-0"
           aria-label="Menge"
         />
         <Button type="submit" accent={cat.solid} disabled={!name.trim()}>
@@ -217,6 +218,7 @@ export default function Einkaufsliste() {
           )}
         </div>
       )}
+      </div>
 
       {pickingStore && (
         <Modal title="Wo gehst du einkaufen?" onClose={() => setPickingStore(false)}>

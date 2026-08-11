@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PageHeader } from '../components/layout/PageHeader'
+import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -194,55 +194,56 @@ export default function Haustechnik() {
   return (
     <>
       <AppDecor />
-      <PageHeader
-        title="Haus & Technik"
-        category={cat}
-        icon={<IconWrench className="w-6 h-6" />}
-        action={<Button accent={cat.solid} onClick={() => setEditing('new')}>+ Gerät</Button>}
-      />
+      <PageHero title="Haus & Technik" category={cat} icon={<IconWrench className="w-6 h-6" />} />
 
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+      <div className="px-4 pt-5">
+        <div className="flex justify-end mb-3">
+          <Button accent={cat.solid} onClick={() => setEditing('new')}>+ Gerät</Button>
+        </div>
 
-      {loading ? (
-        <p className="text-sm text-slate-400">Lädt …</p>
-      ) : appliances.length === 0 ? (
-        <EmptyState title="Noch keine Geräte erfasst" hint="z. B. Wärmepumpe oder später PV-Anlage." />
-      ) : (
-        <div className="space-y-3">
-          {appliances.map((appliance) => (
-            <Card
-              key={appliance.id}
-              className="cursor-pointer hover:border-slate-300 transition-colors"
-              onClick={() => setEditing(appliance)}
-            >
-              <div className="flex items-center gap-3">
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
-                  <IconWrench className="w-5 h-5" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800">{appliance.name}</p>
-                  <p className="text-xs text-slate-400">
-                    {applianceCategoryLabels[appliance.category]}
-                    {appliance.manufacturer ? ` · ${appliance.manufacturer}` : ''}
-                  </p>
-                </div>
-                {appliance.next_maintenance_due && (
-                  <div className="text-right shrink-0">
-                    <p className="text-xs text-slate-400">Wartung</p>
-                    <p
-                      className={`text-xs font-medium ${
-                        daysUntil(appliance.next_maintenance_due) <= 30 ? 'text-amber-600' : 'text-slate-500'
-                      }`}
-                    >
-                      {formatDateDe(appliance.next_maintenance_due)}
+        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+        {loading ? (
+          <p className="text-sm text-slate-400">Lädt …</p>
+        ) : appliances.length === 0 ? (
+          <EmptyState title="Noch keine Geräte erfasst" hint="z. B. Wärmepumpe oder später PV-Anlage." />
+        ) : (
+          <div className="space-y-3">
+            {appliances.map((appliance) => (
+              <Card
+                key={appliance.id}
+                className="cursor-pointer hover:border-slate-300 transition-colors"
+                onClick={() => setEditing(appliance)}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
+                    <IconWrench className="w-5 h-5" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800">{appliance.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {applianceCategoryLabels[appliance.category]}
+                      {appliance.manufacturer ? ` · ${appliance.manufacturer}` : ''}
                     </p>
                   </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+                  {appliance.next_maintenance_due && (
+                    <div className="text-right shrink-0">
+                      <p className="text-xs text-slate-400">Wartung</p>
+                      <p
+                        className={`text-xs font-medium ${
+                          daysUntil(appliance.next_maintenance_due) <= 30 ? 'text-amber-600' : 'text-slate-500'
+                        }`}
+                      >
+                        {formatDateDe(appliance.next_maintenance_due)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {editing && (
         <Modal title={editing === 'new' ? 'Gerät hinzufügen' : 'Gerät bearbeiten'} onClose={() => setEditing(null)}>
