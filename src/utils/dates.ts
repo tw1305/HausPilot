@@ -4,6 +4,20 @@ const startOfDay = (date: Date): Date => {
   return copy
 }
 
+/**
+ * Formatiert ein Datum als YYYY-MM-DD anhand der LOKALEN Kalenderfelder.
+ * `date.toISOString()` rechnet zuerst auf UTC um – in deutscher Zeitzone
+ * (UTC+1/+2) kippt das Datum dabei oft auf den Vortag. Für reine
+ * Kalenderdaten (Formularfelder, keine Zeitpunkte) immer diese Funktion
+ * statt toISOString() verwenden.
+ */
+export const toIsoDate = (date: Date): string => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export const daysUntil = (date: Date | string, referenceDate: Date = new Date()): number => {
   const target = startOfDay(typeof date === 'string' ? new Date(date) : date)
   const today = startOfDay(referenceDate)
@@ -45,9 +59,14 @@ export const nextOccurrenceForMonth = (
  */
 export const nextDateForMonths = (months: number[], referenceDate: Date = new Date()): string => {
   if (months.length === 0) return ''
-  const dates = months.map((m) => nextOccurrenceForMonth(m, true, null, referenceDate))
+  const today = startOfDay(referenceDate)
+  const dates = months.map((m) => {
+    const year = today.getFullYear()
+    const candidate = new Date(year, m - 1, 1)
+    return candidate.getTime() < today.getTime() ? new Date(year + 1, m - 1, 1) : candidate
+  })
   dates.sort((a, b) => a.getTime() - b.getTime())
-  return dates[0].toISOString().slice(0, 10)
+  return toIsoDate(dates[0])
 }
 
 export const formatDateDe = (date: Date | string | null | undefined): string => {
@@ -59,7 +78,7 @@ export const formatDateDe = (date: Date | string | null | undefined): string => 
 export const formatMonthDe = (month: number): string =>
   new Intl.DateTimeFormat('de-DE', { month: 'long' }).format(new Date(2000, month - 1, 1))
 
-export const todayIsoDate = (): string => startOfDay(new Date()).toISOString().slice(0, 10)
+export const todayIsoDate = (): string => toIsoDate(new Date())
 
 export const formatWeekdayDateDe = (date: Date = new Date()): string =>
   new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(date)

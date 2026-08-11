@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { FormField, Input, Select, Textarea } from '../ui/FormField'
 import { Button } from '../ui/Button'
+import { toIsoDate } from '../../utils/dates'
 import type { ContractCategory } from '../../types/database'
 
 export interface ContractFormValues {
@@ -62,7 +63,7 @@ function reminderFromEnd(endDate: string, months: number): string {
   const d = new Date(endDate)
   if (Number.isNaN(d.getTime())) return ''
   d.setMonth(d.getMonth() - months)
-  return d.toISOString().slice(0, 10)
+  return toIsoDate(d)
 }
 
 interface VehicleOption {
