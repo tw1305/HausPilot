@@ -2,10 +2,7 @@ import { Link } from 'react-router-dom'
 import { formatDateDe } from '../../utils/dates'
 import type { ReminderItem } from '../../utils/reminders'
 
-// Abbuchungen sind reine Info (wird automatisch abgebucht) – bleiben neutral,
-// alles andere färbt sich rot/gelb, je näher die Fälligkeit rückt.
 function urgencyDotClass(item: ReminderItem): string {
-  if (item.type === 'contract_payment') return 'bg-emerald-400'
   if (item.daysUntil <= 7) return 'bg-red-400'
   if (item.daysUntil <= 30) return 'bg-amber-400'
   return 'bg-emerald-400'

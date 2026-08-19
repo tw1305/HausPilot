@@ -6,7 +6,6 @@ export type ReminderType =
   | 'vehicle_service'
   | 'vehicle_tire'
   | 'plant_care'
-  | 'contract_payment'
   | 'contract_cancellation'
   | 'appliance_maintenance'
 
@@ -26,7 +25,6 @@ export const LEAD_DAYS: Record<ReminderType, number> = {
   vehicle_service: 30,
   vehicle_tire: 30,
   plant_care: 21,
-  contract_payment: 14,
   contract_cancellation: 60,
   appliance_maintenance: 30,
 }
@@ -86,17 +84,6 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
   }
 
   for (const contract of input.contracts) {
-    if (contract.next_payment_date) {
-      items.push({
-        id: `contract-payment-${contract.id}`,
-        type: 'contract_payment',
-        title: 'Nächste Abbuchung',
-        subtitle: contract.provider,
-        dueDate: new Date(contract.next_payment_date),
-        daysUntil: daysUntil(contract.next_payment_date),
-        link: '/vertraege',
-      })
-    }
     if (contract.cancellation_deadline_date) {
       items.push({
         id: `contract-cancellation-${contract.id}`,

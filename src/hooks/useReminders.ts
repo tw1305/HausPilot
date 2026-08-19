@@ -52,7 +52,6 @@ const QUERY = /* GraphQL */ `
       yearly_amount
       contract_start_date
       cancellation_notice_days
-      next_payment_date
       cancellation_deadline_date
       contact_person
       vehicle_id
