@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
-import { IconWrench } from '../components/layout/NavIcons'
+import { IconWrench, IconSolarPanel, IconClipboardCheck } from '../components/layout/NavIcons'
 import { AppDecor } from '../components/layout/AppDecor'
 import {
   ApplianceForm,
@@ -17,9 +17,15 @@ import { gql } from '../lib/nhost'
 import { categories } from '../theme/categories'
 import { daysUntil, formatDateDe } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
-import type { Appliance, ApplianceMaintenanceLogEntry } from '../types/database'
+import type { Appliance, ApplianceCategory, ApplianceMaintenanceLogEntry } from '../types/database'
 
 const cat = categories.haustechnik
+
+const applianceCategoryIcons: Record<ApplianceCategory, typeof IconWrench> = {
+  waermepumpe: IconWrench,
+  pv_anlage: IconSolarPanel,
+  sonstiges: IconClipboardCheck,
+}
 
 type ApplianceWithLog = Appliance & { appliance_maintenance_log: ApplianceMaintenanceLogEntry[] }
 
@@ -198,7 +204,7 @@ export default function Haustechnik() {
 
       <div className="px-4 pt-5">
         <div className="flex justify-end mb-3">
-          <Button accent={cat.solid} onClick={() => setEditing('new')}>+ Gerät</Button>
+          <Button accent={cat.solid} onClick={() => setEditing('new')}>+ Aufgabe</Button>
         </div>
 
         {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
@@ -209,7 +215,9 @@ export default function Haustechnik() {
           <EmptyState title="Noch keine Geräte erfasst" hint="z. B. Wärmepumpe oder später PV-Anlage." />
         ) : (
           <div className="space-y-3">
-            {appliances.map((appliance) => (
+            {appliances.map((appliance) => {
+              const CategoryIcon = applianceCategoryIcons[appliance.category]
+              return (
               <Card
                 key={appliance.id}
                 className="cursor-pointer hover:border-slate-300 transition-colors"
@@ -217,7 +225,7 @@ export default function Haustechnik() {
               >
                 <div className="flex items-center gap-3">
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
-                    <IconWrench className="w-5 h-5" />
+                    <CategoryIcon className="w-5 h-5" />
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800">{appliance.name}</p>
@@ -240,13 +248,14 @@ export default function Haustechnik() {
                   )}
                 </div>
               </Card>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
 
       {editing && (
-        <Modal title={editing === 'new' ? 'Gerät hinzufügen' : 'Gerät bearbeiten'} onClose={() => setEditing(null)}>
+        <Modal title={editing === 'new' ? 'Aufgabe hinzufügen' : 'Aufgabe bearbeiten'} onClose={() => setEditing(null)}>
           <ApplianceForm
             initialValues={valuesFromAppliance(editing === 'new' ? undefined : editing)}
             onSubmit={handleSave}

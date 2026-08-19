@@ -5,7 +5,17 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/FormField'
 import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
-import { IconReceipt } from '../components/layout/NavIcons'
+import {
+  IconReceipt,
+  IconApple,
+  IconArmchair,
+  IconWrench,
+  IconPlug,
+  IconTShirt,
+  IconPill,
+  IconTicket,
+  IconTag,
+} from '../components/layout/NavIcons'
 import { AppDecor } from '../components/layout/AppDecor'
 import {
   DocumentForm,
@@ -19,9 +29,21 @@ import { categories } from '../theme/categories'
 import { contractCategoryLabels } from '../components/vertraege/ContractForm'
 import { formatDateDe } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
-import type { DocumentRecord, DocumentFile, Contract } from '../types/database'
+import type { DocumentRecord, DocumentFile, Contract, DocumentCategory } from '../types/database'
 
 const cat = categories.dokumente
+
+const documentCategoryIcons: Record<DocumentCategory, typeof IconReceipt> = {
+  lebensmittel: IconApple,
+  haushalt: IconArmchair,
+  reparatur_handwerker: IconWrench,
+  elektronik: IconPlug,
+  kleidung: IconTShirt,
+  gesundheit: IconPill,
+  freizeit: IconTicket,
+  vinted: IconTag,
+  sonstiges: IconReceipt,
+}
 
 type DocumentWithFiles = DocumentRecord & {
   document_files: DocumentFile[]
@@ -262,7 +284,9 @@ export default function Dokumente() {
           <EmptyState title="Keine Treffer" hint="Versuch einen anderen Suchbegriff." />
         ) : (
           <div className="space-y-3">
-            {filteredDocuments.map((doc) => (
+            {filteredDocuments.map((doc) => {
+              const CategoryIcon = documentCategoryIcons[doc.category]
+              return (
               <Card
                 key={doc.id}
                 className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -279,7 +303,7 @@ export default function Dokumente() {
                     <span
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}
                     >
-                      <IconReceipt className="w-5 h-5" />
+                      <CategoryIcon className="w-5 h-5" />
                     </span>
                   )}
                   <div className="flex-1 min-w-0">
@@ -297,7 +321,8 @@ export default function Dokumente() {
                   )}
                 </div>
               </Card>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

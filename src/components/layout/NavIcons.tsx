@@ -111,6 +111,117 @@ export function IconSun({ className = 'w-6 h-6' }: IconProps) {
   )
 }
 
+export function IconSolarPanel({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.75 12 6l9 3.75-9 3.75-9-3.75Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.75v4.5L12 18l9-3.75v-4.5M7.5 8v6M12 6v11.25M16.5 8v6" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v3" />
+    </svg>
+  )
+}
+
+export function IconClipboardCheck({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 3.75h6a1.5 1.5 0 0 1 1.5 1.5v.75h1.5A1.5 1.5 0 0 1 19.5 7.5v12a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19.5v-12A1.5 1.5 0 0 1 6 6h1.5v-.75a1.5 1.5 0 0 1 1.5-1.5Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 11.25 11 13.25l4-4.5" />
+    </svg>
+  )
+}
+
+export function IconApple({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 9c-1.3-1.5-3.3-1.9-4.8-.9-2.2 1.4-2.7 4.8-1.2 7.7 1.3 2.5 3.4 4.7 5 4.7.8 0 1.2-.3 2-.3s1.2.3 2 .3c1.6 0 3.7-2.2 5-4.7 1.5-2.9 1-6.3-1.2-7.7-1.5-1-3.5-.6-4.8.9Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12.5 9c-.3-1.6.4-2.9 1.8-3.75" />
+    </svg>
+  )
+}
+
+export function IconArmchair({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12V8.5A2.5 2.5 0 0 1 8.5 6h7A2.5 2.5 0 0 1 18 8.5V12" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 12.75A1.5 1.5 0 0 1 6 11.25h12a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5v-3Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 17.25V19M18 17.25V19" />
+    </svg>
+  )
+}
+
+export function IconPlug({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 3v4.5M15 3v4.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 7.5h10.5v3a5.25 5.25 0 0 1-10.5 0v-3Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15.75V21" />
+    </svg>
+  )
+}
+
+export function IconTShirt({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8.25 4.5 4.5 7.5l2.25 2.5L8.25 8.5V19.5h7.5V8.5l1.5 1.5 2.25-2.5-3.75-3-1.5 1.5h-4.5l-1.5-1.5Z"
+      />
+    </svg>
+  )
+}
+
+export function IconPill({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7.5 16.5 16.5 7.5a3.712 3.712 0 1 1 5.25 5.25L12.75 21.75A3.712 3.712 0 0 1 7.5 16.5Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 13.5 3.75 3.75" />
+    </svg>
+  )
+}
+
+export function IconTicket({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 8.25A1.5 1.5 0 0 1 6 6.75h12a1.5 1.5 0 0 1 1.5 1.5v1.5a1.5 1.5 0 0 0 0 3v1.5a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5v-1.5a1.5 1.5 0 0 0 0-3v-1.5Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1.5 2" d="M9.75 6.75v10.5" />
+    </svg>
+  )
+}
+
+export function IconTag({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.03 3.75H6a2.25 2.25 0 0 0-2.25 2.25v5.03c0 .597.237 1.169.659 1.591l8.69 8.69a2.25 2.25 0 0 0 3.182 0l4.371-4.371a2.25 2.25 0 0 0 0-3.182l-8.69-8.69a2.25 2.25 0 0 0-1.591-.659Z"
+      />
+      <circle cx="7.125" cy="7.125" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 export function IconBell({ className = 'w-6 h-6' }: IconProps) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
