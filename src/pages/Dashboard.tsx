@@ -24,7 +24,7 @@ export default function Dashboard() {
       <div className="px-4 pt-5">
         <div className="mb-5">
           <h2 className="text-2xl font-semibold text-slate-900">{formatWeekdayDateDe()}</h2>
-          <p className="text-sm text-slate-500 mt-0.5">Diese Woche im Blick</p>
+          <p className="text-sm text-slate-500 mt-0.5">Die nächsten Wochen im Blick</p>
         </div>
 
         <section className="mb-6">
