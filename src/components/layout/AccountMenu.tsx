@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { IconLogout } from './NavIcons'
+import { IconLogout, IconHomeSolid } from './NavIcons'
 
 // Runder Avatar-Button für dunkle Hero-Header: antippen öffnet ein kleines
 // Menü mit Haushaltsname + Abmelden (ersetzt die frühere separate Kopfzeile).
@@ -18,19 +18,17 @@ export function AccountMenu() {
     return () => document.removeEventListener('mousedown', onClick)
   }, [open])
 
-  const initial = (householdName ?? 'H').trim().charAt(0).toUpperCase() || 'H'
-
   return (
     <div ref={ref} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white shadow-sm transition-transform active:scale-95"
+        className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-[#16301b] shadow-sm transition-transform active:scale-95"
         aria-haspopup="true"
         aria-expanded={open}
         aria-label="Konto-Menü"
       >
-        {initial}
+        <IconHomeSolid className="w-5 h-5 text-white" />
       </button>
       {open && (
         <div className="absolute right-0 top-11 z-20 w-40 overflow-hidden rounded-xl border border-black/5 bg-white py-1 shadow-lg">

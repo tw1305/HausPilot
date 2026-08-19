@@ -11,6 +11,18 @@ export function IconHome({ className = 'w-6 h-6' }: IconProps) {
   )
 }
 
+export function IconHomeSolid({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24">
+      <polygon points="12,4 3.5,11 20.5,11" fill="currentColor" />
+      <rect x="6" y="5" width="2.5" height="5" rx="0.4" fill="currentColor" />
+      <rect x="5" y="11" width="14" height="8.5" rx="1.2" fill="currentColor" />
+      {/* Türausschnitt: Farbe muss den Kreis-Hintergrund treffen, da es ein "Loch" simuliert statt echtem Clip */}
+      <rect x="10" y="14.7" width="4" height="4.8" rx="2" fill="#16301b" />
+    </svg>
+  )
+}
+
 export function IconCar({ className = 'w-6 h-6' }: IconProps) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
