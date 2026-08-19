@@ -12,7 +12,7 @@ export default function Dashboard() {
   return (
     <>
       <AppDecor />
-      <DashboardHero hasUpcoming={reminders.length > 0} />
+      <DashboardHero />
 
       <div className="px-4 pt-5">
         <div className="mb-5">

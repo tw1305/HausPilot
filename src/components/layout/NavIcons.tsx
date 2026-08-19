@@ -102,6 +102,15 @@ export function IconClose({ className = 'w-6 h-6' }: IconProps) {
   )
 }
 
+export function IconSun({ className = 'w-6 h-6' }: IconProps) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+      <circle cx="12" cy="12" r="4.25" />
+      <path strokeLinecap="round" d="M12 2.75v2.25M12 19v2.25M4.399 4.399l1.591 1.591M18.01 18.01l1.591 1.591M2.75 12H5M19 12h2.25M4.399 19.601l1.591-1.591M18.01 5.99l1.591-1.591" />
+    </svg>
+  )
+}
+
 export function IconBell({ className = 'w-6 h-6' }: IconProps) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">

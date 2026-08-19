@@ -1,14 +1,9 @@
 import { useAuth } from '../../context/AuthContext'
 import { AccountMenu } from '../layout/AccountMenu'
 import { HeroWave } from '../layout/HeroWave'
-import { IconBell } from '../layout/NavIcons'
+import { WeatherButton } from './WeatherButton'
 
-interface DashboardHeroProps {
-  /** Zeigt einen kleinen Punkt an der Glocke, wenn es etwas Anstehendes gibt. */
-  hasUpcoming?: boolean
-}
-
-export function DashboardHero({ hasUpcoming }: DashboardHeroProps) {
+export function DashboardHero() {
   const { householdName } = useAuth()
 
   return (
@@ -20,12 +15,7 @@ export function DashboardHero({ hasUpcoming }: DashboardHeroProps) {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <span className="relative flex h-9 w-9 items-center justify-center text-emerald-50/90">
-            <IconBell className="w-5 h-5" />
-            {hasUpcoming && (
-              <span className="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-[#16301b]" />
-            )}
-          </span>
+          <WeatherButton />
           <AccountMenu />
         </div>
       </div>
