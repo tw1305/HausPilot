@@ -12,7 +12,6 @@ export function DashboardHero() {
       <div className="relative z-10 max-w-md mx-auto px-4 pt-4 pb-14 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold text-white truncate">{greeting}</h1>
-          <p className="text-sm text-emerald-100/70 mt-0.5">Willkommen zurück</p>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { FormField, Input } from '../ui/FormField'
-import { IconSun } from '../layout/NavIcons'
+import { IconSunSolid } from '../layout/NavIcons'
 
 const STORAGE_KEY = 'hauspilot-weather-location'
 const DEFAULT_LOCATION_NAME = 'Druisheim'
@@ -129,7 +129,7 @@ export function WeatherButton() {
         className="flex h-9 w-9 items-center justify-center rounded-full text-yellow-400 transition-transform active:scale-95"
         aria-label="Wetter anzeigen"
       >
-        <IconSun className="w-5 h-5" />
+        <IconSunSolid className="w-5 h-5" />
       </button>
 
       {open && (
