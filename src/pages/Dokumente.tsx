@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/FormField'
 import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { IconReceipt } from '../components/layout/NavIcons'
@@ -15,13 +16,17 @@ import {
 import { DocumentPhoto } from '../components/dokumente/DocumentPhoto'
 import { gql, uploadDocumentPhotos, deleteStorageFile } from '../lib/nhost'
 import { categories } from '../theme/categories'
+import { contractCategoryLabels } from '../components/vertraege/ContractForm'
 import { formatDateDe } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
-import type { DocumentRecord, DocumentFile } from '../types/database'
+import type { DocumentRecord, DocumentFile, Contract } from '../types/database'
 
 const cat = categories.dokumente
 
-type DocumentWithFiles = DocumentRecord & { document_files: DocumentFile[] }
+type DocumentWithFiles = DocumentRecord & {
+  document_files: DocumentFile[]
+  contract: Pick<Contract, 'id' | 'provider' | 'category'> | null
+}
 
 const LIST_QUERY = /* GraphQL */ `
   query Documents {
@@ -31,6 +36,8 @@ const LIST_QUERY = /* GraphQL */ `
       vendor
       amount
       document_date
+      paid_on
+      contract_id
       notes
       created_at
       document_files(order_by: { created_at: asc }) {
@@ -38,6 +45,16 @@ const LIST_QUERY = /* GraphQL */ `
         file_id
         file_name
       }
+      contract {
+        id
+        provider
+        category
+      }
+    }
+    contracts(order_by: { provider: asc }) {
+      id
+      provider
+      category
     }
   }
 `
@@ -91,22 +108,29 @@ function valuesFromDocument(doc?: DocumentRecord): DocumentFormValues {
     vendor: doc.vendor ?? '',
     amount: doc.amount?.toString() ?? '',
     document_date: doc.document_date ?? '',
+    paid_on: doc.paid_on ?? '',
+    contract_id: doc.contract_id ?? '',
     notes: doc.notes ?? '',
   }
 }
 
 export default function Dokumente() {
   const [documents, setDocuments] = useState<DocumentWithFiles[]>([])
+  const [contracts, setContracts] = useState<Pick<Contract, 'id' | 'provider' | 'category'>[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<DocumentWithFiles | null | 'new'>(null)
   const [saving, setSaving] = useState(false)
+  const [search, setSearch] = useState('')
 
   const load = async () => {
     setLoading(true)
     try {
-      const data = await gql<{ documents: DocumentWithFiles[] }>(LIST_QUERY)
+      const data = await gql<{ documents: DocumentWithFiles[]; contracts: Pick<Contract, 'id' | 'provider' | 'category'>[] }>(
+        LIST_QUERY,
+      )
       setDocuments(data.documents)
+      setContracts(data.contracts)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Laden.')
@@ -119,6 +143,19 @@ export default function Dokumente() {
     void load()
   }, [])
 
+  const contractOptions = contracts.map((c) => ({ id: c.id, label: `${c.provider} (${contractCategoryLabels[c.category]})` }))
+
+  const filteredDocuments = documents.filter((doc) => {
+    const q = search.trim().toLowerCase()
+    if (!q) return true
+    return (
+      (doc.vendor ?? '').toLowerCase().includes(q) ||
+      documentCategoryLabels[doc.category].toLowerCase().includes(q) ||
+      (doc.notes ?? '').toLowerCase().includes(q) ||
+      (doc.contract?.provider ?? '').toLowerCase().includes(q)
+    )
+  })
+
   const handleSave = async (values: DocumentFormValues, newPhotos: File[]) => {
     setSaving(true)
     setError(null)
@@ -127,6 +164,8 @@ export default function Dokumente() {
       vendor: values.vendor || null,
       amount: values.amount ? Number(values.amount) : null,
       document_date: values.document_date || null,
+      paid_on: values.paid_on || null,
+      contract_id: values.contract_id || null,
       notes: values.notes || null,
     }
 
@@ -197,7 +236,14 @@ export default function Dokumente() {
       <PageHero title="Dokumente" category={cat} icon={<IconReceipt className="w-6 h-6" />} />
 
       <div className="px-4 pt-5">
-        <div className="flex justify-end mb-3">
+        <div className="flex items-center gap-2 mb-3">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Belege durchsuchen…"
+            className="flex-1"
+            aria-label="Belege durchsuchen"
+          />
           <Button accent={cat.solid} onClick={() => setEditing('new')}>
             + Beleg
           </Button>
@@ -212,9 +258,11 @@ export default function Dokumente() {
             title="Noch keine Dokumente erfasst"
             hint="Fotografiere Rechnungen und Belege, um sie später wiederzufinden."
           />
+        ) : filteredDocuments.length === 0 ? (
+          <EmptyState title="Keine Treffer" hint="Versuch einen anderen Suchbegriff." />
         ) : (
           <div className="space-y-3">
-            {documents.map((doc) => (
+            {filteredDocuments.map((doc) => (
               <Card
                 key={doc.id}
                 className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -241,6 +289,7 @@ export default function Dokumente() {
                     <p className="text-xs text-slate-400">
                       {documentCategoryLabels[doc.category]}
                       {doc.document_date ? ` · ${formatDateDe(doc.document_date)}` : ''}
+                      {doc.contract ? ` · Vertrag: ${doc.contract.provider}` : ''}
                     </p>
                   </div>
                   {doc.amount !== null && (
@@ -257,6 +306,7 @@ export default function Dokumente() {
         <Modal title={editing === 'new' ? 'Beleg hinzufügen' : 'Beleg bearbeiten'} onClose={() => setEditing(null)}>
           {error && <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <DocumentForm
+            contracts={contractOptions}
             initialValues={valuesFromDocument(editing === 'new' ? undefined : editing)}
             existingFiles={editing === 'new' ? [] : editing.document_files}
             onDeleteExistingFile={handleDeleteFile}

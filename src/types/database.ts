@@ -44,6 +44,9 @@ export interface Vehicle {
   make: string
   model: string
   year_built: number | null
+  mileage_km: number | null
+  mileage_date: string | null
+  last_oil_change_date: string | null
   notes: string | null
   created_at: string
 }
@@ -134,6 +137,8 @@ export interface DocumentRecord {
   vendor: string | null
   amount: number | null
   document_date: string | null
+  paid_on: string | null
+  contract_id: string | null
   notes: string | null
   created_at: string
 }

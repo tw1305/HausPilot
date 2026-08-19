@@ -8,6 +8,9 @@ export interface VehicleFormValues {
   make: string
   model: string
   year_built: string
+  mileage_km: string
+  mileage_date: string
+  last_oil_change_date: string
   notes: string
   tuv_date: string
   service_date: string
@@ -20,6 +23,9 @@ export const emptyVehicleFormValues: VehicleFormValues = {
   make: '',
   model: '',
   year_built: '',
+  mileage_km: '',
+  mileage_date: '',
+  last_oil_change_date: '',
   notes: '',
   tuv_date: '',
   service_date: '',
@@ -69,6 +75,27 @@ export function VehicleForm({ initialValues, onSubmit, onDelete, submitting }: V
           value={values.year_built}
           onChange={(e) => set('year_built', e.target.value)}
           placeholder="z. B. 2019"
+        />
+      </FormField>
+
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Kilometerstand (km)">
+          <Input
+            type="number"
+            value={values.mileage_km}
+            onChange={(e) => set('mileage_km', e.target.value)}
+            placeholder="z. B. 45000"
+          />
+        </FormField>
+        <FormField label="Stand vom">
+          <Input type="date" value={values.mileage_date} onChange={(e) => set('mileage_date', e.target.value)} />
+        </FormField>
+      </div>
+      <FormField label="Letzter Ölwechsel">
+        <Input
+          type="date"
+          value={values.last_oil_change_date}
+          onChange={(e) => set('last_oil_change_date', e.target.value)}
         />
       </FormField>
 

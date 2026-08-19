@@ -33,6 +33,9 @@ const LIST_QUERY = /* GraphQL */ `
       make
       model
       year_built
+      mileage_km
+      mileage_date
+      last_oil_change_date
       notes
       created_at
       vehicle_appointments {
@@ -119,6 +122,9 @@ function valuesFromVehicle(vehicle?: VehicleWithAppointments): VehicleFormValues
     make: vehicle.make,
     model: vehicle.model,
     year_built: vehicle.year_built?.toString() ?? '',
+    mileage_km: vehicle.mileage_km?.toString() ?? '',
+    mileage_date: vehicle.mileage_date ?? '',
+    last_oil_change_date: vehicle.last_oil_change_date ?? '',
     notes: vehicle.notes ?? '',
     tuv_date: tuv?.due_date ?? '',
     service_date: service?.due_date ?? '',
@@ -183,6 +189,9 @@ export default function Fahrzeuge() {
       make: values.make,
       model: values.model,
       year_built: values.year_built ? Number(values.year_built) : null,
+      mileage_km: values.mileage_km ? Number(values.mileage_km) : null,
+      mileage_date: values.mileage_date || null,
+      last_oil_change_date: values.last_oil_change_date || null,
       notes: values.notes || null,
     }
 

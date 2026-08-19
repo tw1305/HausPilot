@@ -12,14 +12,22 @@ import {
   type ContractFormValues,
 } from '../components/vertraege/ContractForm'
 import { Kostenuebersicht } from '../components/vertraege/Kostenuebersicht'
+import { DocumentPhoto } from '../components/dokumente/DocumentPhoto'
+import { documentCategoryLabels } from '../components/dokumente/DocumentForm'
 import { AppDecor } from '../components/layout/AppDecor'
 import { gql } from '../lib/nhost'
 import { categories } from '../theme/categories'
 import { formatDateDe } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
-import type { Contract, Vehicle } from '../types/database'
+import type { Contract, Vehicle, DocumentRecord, DocumentFile } from '../types/database'
 
 const cat = categories.vertraege
+
+type LinkedDocument = Pick<DocumentRecord, 'id' | 'category' | 'vendor' | 'amount' | 'document_date'> & {
+  document_files: Pick<DocumentFile, 'file_id'>[]
+}
+
+type ContractWithDocuments = Contract & { documents: LinkedDocument[] }
 
 const LIST_QUERY = /* GraphQL */ `
   query ContractsAndVehicles {
@@ -40,6 +48,16 @@ const LIST_QUERY = /* GraphQL */ `
       vehicle_id
       notes
       created_at
+      documents(order_by: { created_at: desc }) {
+        id
+        category
+        vendor
+        amount
+        document_date
+        document_files {
+          file_id
+        }
+      }
     }
     vehicles {
       id
@@ -98,18 +116,18 @@ function valuesFromContract(contract?: Contract): ContractFormValues {
 }
 
 export default function Vertraege() {
-  const [contracts, setContracts] = useState<Contract[]>([])
+  const [contracts, setContracts] = useState<ContractWithDocuments[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [editing, setEditing] = useState<Contract | null | 'new'>(null)
+  const [editing, setEditing] = useState<ContractWithDocuments | null | 'new'>(null)
   const [saving, setSaving] = useState(false)
   const [showCosts, setShowCosts] = useState(false)
 
   const load = async () => {
     setLoading(true)
     try {
-      const data = await gql<{ contracts: Contract[]; vehicles: Vehicle[] }>(LIST_QUERY)
+      const data = await gql<{ contracts: ContractWithDocuments[]; vehicles: Vehicle[] }>(LIST_QUERY)
       setContracts(data.contracts)
       setVehicles(data.vehicles)
       setError(null)
@@ -243,6 +261,39 @@ export default function Vertraege() {
             onDelete={editing !== 'new' ? handleDelete : undefined}
             submitting={saving}
           />
+
+          {editing !== 'new' && editing.documents.length > 0 && (
+            <div className="mt-5 border-t border-slate-100 pt-4">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Verknüpfte Belege ({editing.documents.length})
+              </h3>
+              <ul className="space-y-2">
+                {editing.documents.map((doc) => (
+                  <li key={doc.id} className="flex items-center gap-3">
+                    {doc.document_files[0] ? (
+                      <DocumentPhoto
+                        fileId={doc.document_files[0].file_id}
+                        alt=""
+                        className="h-9 w-9 shrink-0 rounded-lg object-cover cursor-pointer"
+                        enlargeOnClick
+                      />
+                    ) : (
+                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${cat.tintBg} ${cat.text}`}>
+                        <IconDocument className="w-4 h-4" />
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-slate-700">
+                        {doc.vendor?.trim() || documentCategoryLabels[doc.category]}
+                      </p>
+                      {doc.document_date && <p className="text-xs text-slate-400">{formatDateDe(doc.document_date)}</p>}
+                    </div>
+                    {doc.amount !== null && <p className="shrink-0 text-sm text-slate-500">{formatEUR(doc.amount)}</p>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </Modal>
       )}
 

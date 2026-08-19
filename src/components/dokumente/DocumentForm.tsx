@@ -10,6 +10,8 @@ export interface DocumentFormValues {
   vendor: string
   amount: string
   document_date: string
+  paid_on: string
+  contract_id: string
   notes: string
 }
 
@@ -18,6 +20,8 @@ export const emptyDocumentFormValues: DocumentFormValues = {
   vendor: '',
   amount: '',
   document_date: '',
+  paid_on: '',
+  contract_id: '',
   notes: '',
 }
 
@@ -38,9 +42,15 @@ interface PendingPhoto {
   previewUrl: string
 }
 
+interface ContractOption {
+  id: string
+  label: string
+}
+
 interface DocumentFormProps {
   initialValues: DocumentFormValues
   existingFiles: DocumentFile[]
+  contracts: ContractOption[]
   onDeleteExistingFile: (file: DocumentFile) => void | Promise<void>
   onSubmit: (values: DocumentFormValues, newPhotos: File[]) => void | Promise<void>
   onDelete?: () => void
@@ -50,6 +60,7 @@ interface DocumentFormProps {
 export function DocumentForm({
   initialValues,
   existingFiles,
+  contracts,
   onDeleteExistingFile,
   onSubmit,
   onDelete,
@@ -129,6 +140,22 @@ export function DocumentForm({
         </FormField>
         <FormField label="Rechnungsdatum">
           <Input type="date" value={values.document_date} onChange={(e) => set('document_date', e.target.value)} />
+        </FormField>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Bezahlt am">
+          <Input type="date" value={values.paid_on} onChange={(e) => set('paid_on', e.target.value)} />
+        </FormField>
+        <FormField label="Verknüpfter Vertrag">
+          <Select value={values.contract_id} onChange={(e) => set('contract_id', e.target.value)}>
+            <option value="">– kein Vertrag verknüpft –</option>
+            {contracts.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </Select>
         </FormField>
       </div>
 
