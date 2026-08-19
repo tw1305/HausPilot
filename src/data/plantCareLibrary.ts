@@ -215,6 +215,24 @@ export const plantCareLibrary: PlantCareTemplate[] = [
     ],
   },
   {
+    key: 'stachelbeere',
+    label: 'Stachelbeere',
+    emoji: '🫐',
+    pruningMonths: [2],
+    recommendations: [{ title: 'Winterschnitt', month: 2 }],
+    info: [
+      {
+        label: 'Rückschnitt',
+        text: 'Hauptschnitt im Spätwinter (Februar–März, vor dem Austrieb). Ziel ist eine offene Vase-/Kelchform mit lockerer Mitte für gute Luft- und Lichtzufuhr (beugt Mehltau vor). 8–10 kräftige Haupttriebe stehen lassen, ältere (ab 3 Jahren) sowie nach innen wachsende oder sich kreuzende Triebe bodennah entfernen. Neue Seitentriebe um etwa die Hälfte auf ein nach außen zeigendes Auge einkürzen.',
+      },
+      { label: 'Standort & Boden', text: 'Sonnig bis halbschattig (pralle Mittagssonne begünstigt Mehltau), humoser, durchlässiger, nährstoffreicher Boden.' },
+      { label: 'Gießen', text: 'Mäßig, aber gleichmäßig feucht halten – flach wurzelnd und daher empfindlich bei Trockenheit. Staunässe vermeiden.' },
+      { label: 'Dünger', text: 'Im zeitigen Frühjahr Kompost oder organischen Beerendünger einarbeiten.' },
+      { label: 'Achtung', text: 'Anfällig für Amerikanischen Stachelbeermehltau – luftige Krone und ggf. resistente Sorten (z. B. \'Invicta\') beugen vor. Triebe sind bedornt, beim Schnitt Handschuhe tragen.' },
+      { label: 'Ernte', text: 'Je nach Sorte Juni bis Juli.' },
+    ],
+  },
+  {
     key: 'weinrebe',
     label: 'Weinrebe',
     emoji: '🍇',
