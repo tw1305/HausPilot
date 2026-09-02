@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { FormField, Input, Select, Textarea } from '../ui/FormField'
 import { Button } from '../ui/Button'
 import { CareRecommendationEditor, type CareRecommendationDraft } from './CareRecommendationEditor'
-import { plantCareLibrary, findPlantCareTemplate } from '../../data/plantCareLibrary'
+import { plantCareLibrary, findPlantCareTemplate, PLANT_GROUP_ORDER, PLANT_GROUP_LABELS, type PlantGroup } from '../../data/plantCareLibrary'
 import { nextDateForMonths } from '../../utils/dates'
 
 export interface PlantFormValues {
@@ -34,12 +34,21 @@ interface PlantFormProps {
 
 export function PlantForm({ initialValues, onSubmit, onDelete, submitting }: PlantFormProps) {
   const [values, setValues] = useState(initialValues)
+  const [group, setGroup] = useState<PlantGroup | ''>(
+    () => (initialValues.plant_type ? findPlantCareTemplate(initialValues.plant_type)?.group : undefined) ?? '',
+  )
 
   const set = <K extends keyof PlantFormValues>(key: K, value: PlantFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }))
 
   const template = values.plant_type ? findPlantCareTemplate(values.plant_type) : undefined
   const pruningMonths = template?.pruningMonths
+  const templatesInGroup = plantCareLibrary.filter((t) => t.group === group)
+
+  const handleGroupChange = (nextGroup: PlantGroup | '') => {
+    setGroup(nextGroup)
+    set('plant_type', '')
+  }
 
   const handleTypeChange = (plantType: string) => {
     const nextTemplate = plantType ? findPlantCareTemplate(plantType) : undefined
@@ -76,10 +85,21 @@ export function PlantForm({ initialValues, onSubmit, onDelete, submitting }: Pla
           required
         />
       </FormField>
+      <FormField label="Kategorie">
+        <Select value={group} onChange={(e) => handleGroupChange(e.target.value as PlantGroup | '')}>
+          <option value="">Sonstige / keine Kategorie</option>
+          {PLANT_GROUP_ORDER.map((g) => (
+            <option key={g} value={g}>
+              {PLANT_GROUP_LABELS[g]}
+            </option>
+          ))}
+        </Select>
+      </FormField>
+
       <FormField label="Pflanzenart (Vorlage für Pflegeempfehlungen)">
-        <Select value={values.plant_type} onChange={(e) => handleTypeChange(e.target.value)}>
-          <option value="">Sonstige / keine Vorlage</option>
-          {plantCareLibrary.map((t) => (
+        <Select value={values.plant_type} onChange={(e) => handleTypeChange(e.target.value)} disabled={!group}>
+          <option value="">{group ? 'Sonstige / keine Vorlage' : 'Erst Kategorie wählen'}</option>
+          {templatesInGroup.map((t) => (
             <option key={t.key} value={t.key}>
               {t.label}
             </option>

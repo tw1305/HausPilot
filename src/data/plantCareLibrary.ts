@@ -8,9 +8,24 @@ export interface PlantCareInfoItem {
   text: string
 }
 
+export type PlantGroup = 'baum' | 'hecke_strauch' | 'obst' | 'gemuese' | 'stauden_blumen' | 'rasen'
+
+export const PLANT_GROUP_ORDER: PlantGroup[] = ['baum', 'hecke_strauch', 'obst', 'gemuese', 'stauden_blumen', 'rasen']
+
+export const PLANT_GROUP_LABELS: Record<PlantGroup, string> = {
+  baum: 'Baum',
+  hecke_strauch: 'Hecke & Strauch',
+  obst: 'Obst',
+  gemuese: 'Gemüse',
+  stauden_blumen: 'Stauden & Blumen',
+  rasen: 'Rasen',
+}
+
 export interface PlantCareTemplate {
   key: string
   label: string
+  /** Oberbegriff für die zweistufige Auswahl im Formular. */
+  group: PlantGroup
   /** Emoji als „Bild" für Karte und Steckbrief. */
   emoji?: string
   recommendations: PlantCareTemplateRecommendation[]
@@ -22,7 +37,24 @@ export interface PlantCareTemplate {
 
 export const plantCareLibrary: PlantCareTemplate[] = [
   {
+    key: 'kugeltrompetenbaum',
+    label: 'Kugeltrompetenbaum',
+    group: 'baum',
+    emoji: '🌳',
+    pruningMonths: [2],
+    recommendations: [{ title: 'Formschnitt', month: 2 }],
+    info: [
+      { label: 'Rückschnitt', text: 'Formschnitt im Spätwinter (Februar, vor dem Austrieb), um die kugelige Krone kompakt zu halten – verträgt Rückschnitt gut und treibt zuverlässig wieder aus. Wildtriebe unterhalb der Veredelungsstelle am Stamm sofort entfernen.' },
+      { label: 'Standort & Boden', text: 'Sonnig bis halbschattig, warm und möglichst windgeschützt (große Blätter sind windempfindlich). Nährstoffreicher, durchlässiger, frischer Boden.' },
+      { label: 'Gießen', text: 'Besonders in den ersten Standjahren und bei Trockenheit regelmäßig gießen – die großen Blätter verdunsten viel Wasser.' },
+      { label: 'Dünger', text: 'Im Frühjahr Kompost oder organischen Dünger geben.' },
+      { label: 'Winterschutz', text: 'Ausreichend winterhart. Junge Bäume in den ersten Jahren und die Veredelungsstelle am Stamm bei starkem Frost vorsorglich schützen (z. B. Vlies).' },
+      { label: 'Besonderheit', text: 'Veredelter Kleinbaum mit dicht kugelförmiger Krone und großen, herzförmigen Blättern – blüht im Gegensatz zum gewöhnlichen Trompetenbaum kaum, wird vor allem wegen der dekorativen Wuchsform gepflanzt.' },
+    ],
+  },
+  {
     key: 'lavendel',
+    group: 'stauden_blumen',
     label: 'Lavendel',
     emoji: '🪻',
     recommendations: [],
@@ -41,6 +73,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'rose',
+    group: 'hecke_strauch',
     label: 'Rose',
     emoji: '🌹',
     pruningMonths: [3],
@@ -57,6 +90,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'hortensie',
+    group: 'hecke_strauch',
     label: 'Hortensie',
     emoji: '🌸',
     pruningMonths: [3],
@@ -70,6 +104,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'rhododendron',
+    group: 'hecke_strauch',
     label: 'Rhododendron / Azalee',
     emoji: '🌺',
     recommendations: [],
@@ -82,6 +117,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'flieder',
+    group: 'hecke_strauch',
     label: 'Flieder',
     emoji: '💜',
     pruningMonths: [6],
@@ -94,6 +130,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'forsythie',
+    group: 'hecke_strauch',
     label: 'Forsythie',
     emoji: '🌼',
     pruningMonths: [4],
@@ -106,6 +143,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'sommerflieder',
+    group: 'hecke_strauch',
     label: 'Sommerflieder (Schmetterlingsstrauch)',
     emoji: '🦋',
     pruningMonths: [3],
@@ -118,6 +156,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'hecke',
+    group: 'hecke_strauch',
     label: 'Hecke (z. B. Thuja)',
     emoji: '🌲',
     pruningMonths: [6, 8],
@@ -132,6 +171,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'buchsbaum',
+    group: 'hecke_strauch',
     label: 'Buchsbaum',
     emoji: '🌿',
     pruningMonths: [6, 8],
@@ -147,6 +187,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'liguster',
+    group: 'hecke_strauch',
     label: 'Liguster',
     emoji: '🌳',
     pruningMonths: [6, 8],
@@ -161,6 +202,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'kirschlorbeer',
+    group: 'hecke_strauch',
     label: 'Kirschlorbeer',
     emoji: '🍃',
     pruningMonths: [6, 9],
@@ -175,6 +217,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'eibe',
+    group: 'hecke_strauch',
     label: 'Eibe',
     emoji: '🌲',
     pruningMonths: [6, 9],
@@ -190,6 +233,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'konifere',
+    group: 'hecke_strauch',
     label: 'Konifere (sonstige)',
     emoji: '🎄',
     pruningMonths: [6],
@@ -201,6 +245,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'thuja',
+    group: 'hecke_strauch',
     label: 'Thuja (Lebensbaum)',
     emoji: '🌲',
     pruningMonths: [6, 8],
@@ -216,6 +261,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'hainbuche',
+    group: 'hecke_strauch',
     label: 'Hainbuche',
     emoji: '🍂',
     pruningMonths: [6, 8],
@@ -231,6 +277,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'rotbuche',
+    group: 'hecke_strauch',
     label: 'Rotbuche',
     emoji: '🟤',
     pruningMonths: [6, 8],
@@ -246,6 +293,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'glanzmispel',
+    group: 'hecke_strauch',
     label: 'Glanzmispel (Photinia)',
     emoji: '🔴',
     pruningMonths: [3, 7],
@@ -261,6 +309,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'stechpalme',
+    group: 'hecke_strauch',
     label: 'Stechpalme (Ilex)',
     emoji: '🍀',
     pruningMonths: [5, 8],
@@ -276,6 +325,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'feldahorn',
+    group: 'hecke_strauch',
     label: 'Feldahorn',
     emoji: '🍁',
     pruningMonths: [6, 8],
@@ -291,6 +341,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'berberitze',
+    group: 'hecke_strauch',
     label: 'Berberitze',
     emoji: '🟠',
     pruningMonths: [3],
@@ -303,6 +354,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'obstbaum',
+    group: 'obst',
     label: 'Obstbaum (z. B. Apfel)',
     emoji: '🍎',
     pruningMonths: [2],
@@ -318,6 +370,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'kirschbaum',
+    group: 'obst',
     label: 'Kirschbaum',
     emoji: '🍒',
     pruningMonths: [7],
@@ -332,6 +385,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'zwetschge',
+    group: 'obst',
     label: 'Zwetschge / Pflaume',
     emoji: '🔵',
     pruningMonths: [7],
@@ -346,6 +400,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'stachelbeere',
+    group: 'obst',
     label: 'Stachelbeere',
     emoji: '🟢',
     pruningMonths: [2],
@@ -364,6 +419,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'himbeere',
+    group: 'obst',
     label: 'Himbeere',
     emoji: '🔴',
     pruningMonths: [2, 8],
@@ -381,6 +437,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'johannisbeere',
+    group: 'obst',
     label: 'Johannisbeere',
     emoji: '🟣',
     pruningMonths: [2],
@@ -395,6 +452,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'brombeere',
+    group: 'obst',
     label: 'Brombeere',
     emoji: '⚫',
     pruningMonths: [8],
@@ -410,6 +468,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'heidelbeere',
+    group: 'obst',
     label: 'Heidelbeere',
     emoji: '🫐',
     pruningMonths: [2],
@@ -424,6 +483,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'weinrebe',
+    group: 'obst',
     label: 'Weinrebe',
     emoji: '🍇',
     pruningMonths: [2],
@@ -438,6 +498,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'ziergraeser',
+    group: 'stauden_blumen',
     label: 'Ziergräser',
     emoji: '🌾',
     pruningMonths: [3],
@@ -449,6 +510,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'staudenbeet',
+    group: 'stauden_blumen',
     label: 'Staudenbeet',
     emoji: '🌻',
     pruningMonths: [3],
@@ -463,6 +525,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'rasen',
+    group: 'rasen',
     label: 'Rasen',
     emoji: '🌱',
     recommendations: [
@@ -476,6 +539,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'karotten',
+    group: 'gemuese',
     label: 'Karotten (Möhren)',
     emoji: '🥕',
     recommendations: [
@@ -492,6 +556,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'kohlrabi',
+    group: 'gemuese',
     label: 'Kohlrabi',
     emoji: '🥦',
     recommendations: [
@@ -508,6 +573,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'tomaten',
+    group: 'gemuese',
     label: 'Tomaten',
     emoji: '🍅',
     recommendations: [
@@ -525,6 +591,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'gurken',
+    group: 'gemuese',
     label: 'Gurken',
     emoji: '🥒',
     recommendations: [
@@ -541,6 +608,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'paprika',
+    group: 'gemuese',
     label: 'Paprika',
     emoji: '🫑',
     recommendations: [
@@ -558,6 +626,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'rettich',
+    group: 'gemuese',
     label: 'Rettich',
     emoji: '⚪',
     recommendations: [
@@ -573,6 +642,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'erdbeeren',
+    group: 'obst',
     label: 'Erdbeeren',
     emoji: '🍓',
     recommendations: [
@@ -589,6 +659,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'kuerbis',
+    group: 'gemuese',
     label: 'Kürbis',
     emoji: '🎃',
     recommendations: [
@@ -604,6 +675,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'zucchini',
+    group: 'gemuese',
     label: 'Zucchini',
     emoji: '🟢',
     recommendations: [
@@ -620,6 +692,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'radieschen',
+    group: 'gemuese',
     label: 'Radieschen',
     emoji: '🔴',
     recommendations: [
@@ -635,6 +708,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'kopfsalat',
+    group: 'gemuese',
     label: 'Kopfsalat',
     emoji: '🥬',
     recommendations: [
@@ -650,6 +724,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'zupfsalat',
+    group: 'gemuese',
     label: 'Zupfsalat',
     emoji: '🥗',
     recommendations: [
@@ -665,6 +740,7 @@ export const plantCareLibrary: PlantCareTemplate[] = [
   },
   {
     key: 'ingwer',
+    group: 'gemuese',
     label: 'Ingwer',
     emoji: '🫚',
     recommendations: [
