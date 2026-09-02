@@ -169,11 +169,16 @@ export default function Dokumente() {
   const filteredDocuments = documents.filter((doc) => {
     const q = search.trim().toLowerCase()
     if (!q) return true
+    const amountCandidates =
+      doc.amount !== null && doc.amount !== undefined
+        ? [formatEUR(doc.amount), String(doc.amount), String(doc.amount).replace('.', ',')]
+        : []
     return (
       (doc.vendor ?? '').toLowerCase().includes(q) ||
       documentCategoryLabels[doc.category].toLowerCase().includes(q) ||
       (doc.notes ?? '').toLowerCase().includes(q) ||
-      (doc.contract?.provider ?? '').toLowerCase().includes(q)
+      (doc.contract?.provider ?? '').toLowerCase().includes(q) ||
+      amountCandidates.some((c) => c.replace(/ /g, ' ').toLowerCase().includes(q))
     )
   })
 
