@@ -17,26 +17,43 @@ interface DocumentPhotoProps {
 
 export function DocumentPhoto({ fileId, alt, className, enlargeOnClick }: DocumentPhotoProps) {
   const [url, setUrl] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     let objectUrl: string | null = null
+    setFailed(false)
 
-    void getStorageFileUrl(fileId).then((u) => {
-      if (cancelled) {
-        URL.revokeObjectURL(u)
-        return
-      }
-      objectUrl = u
-      setUrl(u)
-    })
+    getStorageFileUrl(fileId)
+      .then((u) => {
+        if (cancelled) {
+          URL.revokeObjectURL(u)
+          return
+        }
+        objectUrl = u
+        setUrl(u)
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true)
+      })
 
     return () => {
       cancelled = true
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
   }, [fileId])
+
+  if (failed) {
+    return (
+      <div
+        className={`flex items-center justify-center bg-red-50 text-red-400 ${className ?? ''}`}
+        title="Foto konnte nicht geladen werden (fehlende Berechtigung?)"
+      >
+        <IconClose className="w-4 h-4" />
+      </div>
+    )
+  }
 
   if (!url) {
     return <div className={`animate-pulse bg-slate-100 ${className ?? ''}`} />
