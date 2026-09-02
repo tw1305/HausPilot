@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { formatEUR } from '../../utils/currency'
+import { contractCategoryLabels } from './ContractForm'
 import type { Contract, ContractCategory } from '../../types/database'
 
 type OverviewCategory =
@@ -76,8 +77,10 @@ interface KostenuebersichtProps {
   contracts: Contract[]
 }
 
+const currentYear = new Date().getFullYear()
+
 export function Kostenuebersicht({ contracts }: KostenuebersichtProps) {
-  const [mode, setMode] = useState<'monthly' | 'yearly'>('monthly')
+  const [mode, setMode] = useState<'monthly' | 'yearly' | 'perContract'>('monthly')
   const equivalent = mode === 'monthly' ? monthlyEquivalent : yearlyEquivalent
 
   const sums: Record<OverviewCategory, number> = {
@@ -98,53 +101,82 @@ export function Kostenuebersicht({ contracts }: KostenuebersichtProps) {
   const max = Math.max(...OVERVIEW_ORDER.map((key) => sums[key]), 1)
   const rows = OVERVIEW_ORDER.filter((key) => key !== 'sonstiges' || sums.sonstiges > 0)
 
+  const contractRows = contracts
+    .map((contract) => ({ contract, overviewKey: overviewCategoryFor(contract.category), yearly: yearlyEquivalent(contract) }))
+    .filter((row) => row.yearly > 0)
+    .sort((a, b) => {
+      const orderDiff = OVERVIEW_ORDER.indexOf(a.overviewKey) - OVERVIEW_ORDER.indexOf(b.overviewKey)
+      return orderDiff !== 0 ? orderDiff : a.contract.provider.localeCompare(b.contract.provider, 'de')
+    })
+  const contractTotal = contractRows.reduce((sum, row) => sum + row.yearly, 0)
+
   return (
     <div>
-      <div className="mb-4 inline-flex rounded-xl border border-slate-200 p-0.5 text-sm">
-        {(['monthly', 'yearly'] as const).map((m) => (
+      <div className="mb-4 inline-flex flex-wrap rounded-xl border border-slate-200 p-1 text-base">
+        {(['monthly', 'yearly', 'perContract'] as const).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => setMode(m)}
-            className={`rounded-[10px] px-3 py-1.5 font-medium transition-colors ${
+            className={`rounded-[10px] px-4 py-2.5 font-medium transition-colors ${
               mode === m ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            {m === 'monthly' ? 'Monatlich' : 'Jährlich'}
+            {m === 'monthly' ? 'Monatlich' : m === 'yearly' ? 'Jährlich' : currentYear}
           </button>
         ))}
       </div>
 
       <div className="mb-5">
-        <p className="text-xs font-medium text-slate-400">{mode === 'monthly' ? 'Gesamt pro Monat' : 'Gesamt pro Jahr'}</p>
-        <p className="text-3xl font-bold text-slate-900">{formatEUR(total)}</p>
+        <p className="text-xs font-medium text-slate-400">
+          {mode === 'monthly' ? 'Gesamt pro Monat' : mode === 'yearly' ? 'Gesamt pro Jahr' : `Gesamt ${currentYear}`}
+        </p>
+        <p className="text-3xl font-bold text-slate-900">{formatEUR(mode === 'perContract' ? contractTotal : total)}</p>
       </div>
 
-      <div className="space-y-3.5">
-        {rows.map((key) => {
-          const value = sums[key]
-          const widthPct = value > 0 ? Math.max((value / max) * 100, 3) : 0
-          return (
-            <div key={key}>
-              <div className="mb-1 flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1.5 text-slate-700">
-                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: OVERVIEW_COLORS[key] }} />
-                  {OVERVIEW_LABELS[key]}
+      {mode === 'perContract' ? (
+        <div className="space-y-3">
+          {contractRows.length === 0 && <p className="text-sm text-slate-400">Keine Verträge mit hinterlegtem Betrag.</p>}
+          {contractRows.map(({ contract, overviewKey, yearly }) => (
+            <div key={contract.id} className="flex items-center justify-between gap-3 text-sm">
+              <span className="flex min-w-0 items-center gap-1.5 text-slate-700">
+                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: OVERVIEW_COLORS[overviewKey] }} />
+                <span className="min-w-0">
+                  <span className="block truncate font-medium text-slate-800">{contract.provider}</span>
+                  <span className="block text-xs text-slate-400">{contractCategoryLabels[contract.category]}</span>
                 </span>
-                <span className="font-medium text-slate-800">{value > 0 ? formatEUR(value) : '–'}</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                {value > 0 && (
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${widthPct}%`, backgroundColor: OVERVIEW_COLORS[key] }}
-                  />
-                )}
-              </div>
+              </span>
+              <span className="shrink-0 font-medium text-slate-800">{formatEUR(yearly)}</span>
             </div>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-3.5">
+          {rows.map((key) => {
+            const value = sums[key]
+            const widthPct = value > 0 ? Math.max((value / max) * 100, 3) : 0
+            return (
+              <div key={key}>
+                <div className="mb-1 flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-1.5 text-slate-700">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: OVERVIEW_COLORS[key] }} />
+                    {OVERVIEW_LABELS[key]}
+                  </span>
+                  <span className="font-medium text-slate-800">{value > 0 ? formatEUR(value) : '–'}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                  {value > 0 && (
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${widthPct}%`, backgroundColor: OVERVIEW_COLORS[key] }}
+                    />
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
