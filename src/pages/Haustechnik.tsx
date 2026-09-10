@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
-import { IconWrench, IconHome, IconLeaf, IconClipboardCheck, IconTag } from '../components/layout/NavIcons'
+import { IconWrench, IconHome, IconLeaf, IconClipboardCheck, IconTag, IconCheck, IconTrash } from '../components/layout/NavIcons'
 import { AppDecor } from '../components/layout/AppDecor'
 import {
   ApplianceForm,
@@ -165,18 +165,32 @@ export default function Haustechnik() {
     }
   }
 
-  const handleDelete = async () => {
-    if (!editing || editing === 'new') return
-    if (!confirm(`"${editing.name}" wirklich löschen?`)) return
+  const deleteAppliance = async (target: ApplianceWithLog) => {
+    if (!confirm(`"${target.name}" wirklich löschen?`)) return
     setSaving(true)
     try {
-      await gql(DELETE_APPLIANCE, { id: editing.id })
-      setEditing(null)
+      await gql(DELETE_APPLIANCE, { id: target.id })
+      setEditing((current) => (current !== 'new' && current?.id === target.id ? null : current))
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Löschen.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleDelete = () => {
+    if (!editing || editing === 'new') return
+    void deleteAppliance(editing)
+  }
+
+  const handleMarkDone = async (target: ApplianceWithLog) => {
+    setError(null)
+    try {
+      await gql(UPDATE_APPLIANCE, { id: target.id, set: { next_maintenance_due: null } })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Speichern.')
     }
   }
 
@@ -223,12 +237,8 @@ export default function Haustechnik() {
             {appliances.map((appliance) => {
               const CategoryIcon = iconForCategory(appliance.category)
               return (
-              <Card
-                key={appliance.id}
-                className="cursor-pointer hover:border-slate-300 transition-colors"
-                onClick={() => setEditing(appliance)}
-              >
-                <div className="flex items-center gap-3">
+              <Card key={appliance.id} className="hover:border-slate-300 transition-colors">
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => setEditing(appliance)}>
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cat.tintBg} ${cat.text}`}>
                     <CategoryIcon className="w-5 h-5" />
                   </span>
@@ -251,6 +261,24 @@ export default function Haustechnik() {
                       </p>
                     </div>
                   )}
+                </div>
+                <div className="flex items-center justify-end gap-4 mt-2.5 pt-2.5 border-t border-slate-100">
+                  {appliance.next_maintenance_due && (
+                    <button
+                      type="button"
+                      onClick={() => void handleMarkDone(appliance)}
+                      className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-emerald-600"
+                    >
+                      <IconCheck className="w-3.5 h-3.5" /> Erledigt
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void deleteAppliance(appliance)}
+                    className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-red-500"
+                  >
+                    <IconTrash className="w-3.5 h-3.5" /> Löschen
+                  </button>
                 </div>
               </Card>
               )
