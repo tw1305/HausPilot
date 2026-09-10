@@ -213,6 +213,14 @@ export default function Haustechnik() {
     void deleteAppliance(editing)
   }
 
+  const handleMarkDoneInModal = () => {
+    if (!editing || editing === 'new') return
+    const target = editing
+    void handleMarkDone(target).then(() => {
+      setEditing((current) => (current !== 'new' && current?.id === target.id ? null : current))
+    })
+  }
+
   const handleMarkDone = async (target: ApplianceWithLog) => {
     setError(null)
     const nextDue =
@@ -346,6 +354,7 @@ export default function Haustechnik() {
             )}
             onSubmit={handleSave}
             onDelete={editing !== 'new' ? handleDelete : undefined}
+            onMarkDone={editing !== 'new' ? handleMarkDoneInModal : undefined}
             submitting={saving}
           />
 

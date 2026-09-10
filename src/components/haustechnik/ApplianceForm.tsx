@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { FormField, Input, Select, Textarea } from '../ui/FormField'
 import { Button } from '../ui/Button'
+import { IconCheck } from '../layout/NavIcons'
 import type { ApplianceCategory, RecurrenceUnit } from '../../types/database'
 
 export interface ApplianceFormValues {
@@ -47,10 +48,18 @@ interface ApplianceFormProps {
   categoryOptions: string[]
   onSubmit: (values: ApplianceFormValues) => void | Promise<void>
   onDelete?: () => void
+  onMarkDone?: () => void
   submitting?: boolean
 }
 
-export function ApplianceForm({ initialValues, categoryOptions, onSubmit, onDelete, submitting }: ApplianceFormProps) {
+export function ApplianceForm({
+  initialValues,
+  categoryOptions,
+  onSubmit,
+  onDelete,
+  onMarkDone,
+  submitting,
+}: ApplianceFormProps) {
   const [values, setValues] = useState(initialValues)
   const [addingCategory, setAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
@@ -183,9 +192,16 @@ export function ApplianceForm({ initialValues, categoryOptions, onSubmit, onDele
         ) : (
           <span />
         )}
-        <Button type="submit" disabled={submitting}>
-          Speichern
-        </Button>
+        <div className="flex items-center gap-2">
+          {onMarkDone && values.next_maintenance_due && (
+            <Button type="button" variant="secondary" onClick={onMarkDone}>
+              <IconCheck className="w-4 h-4" /> Erledigt
+            </Button>
+          )}
+          <Button type="submit" disabled={submitting}>
+            Speichern
+          </Button>
+        </div>
       </div>
     </form>
   )
