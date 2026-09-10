@@ -228,7 +228,7 @@ export default function Haustechnik() {
   return (
     <>
       <AppDecor />
-      <PageHero title="Haus & Technik" category={cat} icon={<IconWrench className="w-6 h-6" />} />
+      <PageHero title="Offene Aufgaben" category={cat} icon={<IconWrench className="w-6 h-6" />} />
 
       <div className="px-4 pt-5">
         <div className="flex justify-end gap-2 mb-3">
