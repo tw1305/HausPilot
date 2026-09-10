@@ -15,7 +15,7 @@ export interface ApplianceFormValues {
 }
 
 export const emptyApplianceFormValues: ApplianceFormValues = {
-  category: 'waermepumpe',
+  category: 'Technik',
   name: '',
   manufacturer: '',
   model: '',
@@ -25,24 +25,47 @@ export const emptyApplianceFormValues: ApplianceFormValues = {
   notes: '',
 }
 
-export const applianceCategoryLabels: Record<ApplianceCategory, string> = {
-  waermepumpe: 'Wärmepumpe',
-  pv_anlage: 'PV-Anlage',
-  sonstiges: 'Sonstiges',
-}
+/** Feste Grund-Kategorien; darüber hinaus kann jeder Haushalt eigene Kategorien anlegen. */
+export const defaultApplianceCategories = ['Technik', 'Haus', 'Garten', 'Sonstiges']
+
+const NEW_CATEGORY_VALUE = '__new__'
 
 interface ApplianceFormProps {
   initialValues: ApplianceFormValues
+  /** Im Haushalt bereits verwendete (ggf. selbst angelegte) Kategorien, zusätzlich zu den Grund-Kategorien. */
+  categoryOptions: string[]
   onSubmit: (values: ApplianceFormValues) => void | Promise<void>
   onDelete?: () => void
   submitting?: boolean
 }
 
-export function ApplianceForm({ initialValues, onSubmit, onDelete, submitting }: ApplianceFormProps) {
+export function ApplianceForm({ initialValues, categoryOptions, onSubmit, onDelete, submitting }: ApplianceFormProps) {
   const [values, setValues] = useState(initialValues)
+  const [addingCategory, setAddingCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
+
+  const allCategories = Array.from(
+    new Set([...defaultApplianceCategories, ...categoryOptions, values.category].filter(Boolean)),
+  )
 
   const set = <K extends keyof ApplianceFormValues>(key: K, value: ApplianceFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }))
+
+  const handleCategorySelect = (value: string) => {
+    if (value === NEW_CATEGORY_VALUE) {
+      setNewCategoryName('')
+      setAddingCategory(true)
+      return
+    }
+    set('category', value)
+  }
+
+  const confirmNewCategory = () => {
+    const name = newCategoryName.trim()
+    if (!name) return
+    set('category', name)
+    setAddingCategory(false)
+  }
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -52,13 +75,37 @@ export function ApplianceForm({ initialValues, onSubmit, onDelete, submitting }:
   return (
     <form onSubmit={handleSubmit}>
       <FormField label="Kategorie" required>
-        <Select value={values.category} onChange={(e) => set('category', e.target.value as ApplianceCategory)}>
-          {Object.entries(applianceCategoryLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Select>
+        {addingCategory ? (
+          <div className="flex gap-2">
+            <Input
+              autoFocus
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Name der Kategorie"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  confirmNewCategory()
+                }
+              }}
+            />
+            <Button type="button" variant="secondary" onClick={() => setAddingCategory(false)}>
+              Abbrechen
+            </Button>
+            <Button type="button" onClick={confirmNewCategory}>
+              OK
+            </Button>
+          </div>
+        ) : (
+          <Select value={values.category} onChange={(e) => handleCategorySelect(e.target.value)}>
+            {allCategories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+            <option value={NEW_CATEGORY_VALUE}>+ Neue Kategorie</option>
+          </Select>
+        )}
       </FormField>
       <FormField label="Name" required>
         <Input value={values.name} onChange={(e) => set('name', e.target.value)} placeholder="z. B. Wärmepumpe Keller" required />

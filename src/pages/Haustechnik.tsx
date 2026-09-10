@@ -4,11 +4,11 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
-import { IconWrench, IconSolarPanel, IconClipboardCheck } from '../components/layout/NavIcons'
+import { IconWrench, IconHome, IconLeaf, IconClipboardCheck, IconTag } from '../components/layout/NavIcons'
 import { AppDecor } from '../components/layout/AppDecor'
 import {
   ApplianceForm,
-  applianceCategoryLabels,
+  defaultApplianceCategories,
   emptyApplianceFormValues,
   type ApplianceFormValues,
 } from '../components/haustechnik/ApplianceForm'
@@ -17,14 +17,19 @@ import { gql } from '../lib/nhost'
 import { categories } from '../theme/categories'
 import { daysUntil, formatDateDe } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
-import type { Appliance, ApplianceCategory, ApplianceMaintenanceLogEntry } from '../types/database'
+import type { Appliance, ApplianceMaintenanceLogEntry } from '../types/database'
 
 const cat = categories.haustechnik
 
-const applianceCategoryIcons: Record<ApplianceCategory, typeof IconWrench> = {
-  waermepumpe: IconWrench,
-  pv_anlage: IconSolarPanel,
-  sonstiges: IconClipboardCheck,
+const knownCategoryIcons: Record<string, typeof IconWrench> = {
+  Technik: IconWrench,
+  Haus: IconHome,
+  Garten: IconLeaf,
+  Sonstiges: IconClipboardCheck,
+}
+
+function iconForCategory(category: string) {
+  return knownCategoryIcons[category] ?? IconTag
 }
 
 type ApplianceWithLog = Appliance & { appliance_maintenance_log: ApplianceMaintenanceLogEntry[] }
@@ -212,11 +217,11 @@ export default function Haustechnik() {
         {loading ? (
           <p className="text-sm text-slate-400">Lädt …</p>
         ) : appliances.length === 0 ? (
-          <EmptyState title="Noch keine Geräte erfasst" hint="z. B. Wärmepumpe oder später PV-Anlage." />
+          <EmptyState title="Noch keine Geräte erfasst" hint="z. B. Technik, Haus oder Garten." />
         ) : (
           <div className="space-y-3">
             {appliances.map((appliance) => {
-              const CategoryIcon = applianceCategoryIcons[appliance.category]
+              const CategoryIcon = iconForCategory(appliance.category)
               return (
               <Card
                 key={appliance.id}
@@ -230,7 +235,7 @@ export default function Haustechnik() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800">{appliance.name}</p>
                     <p className="text-xs text-slate-400">
-                      {applianceCategoryLabels[appliance.category]}
+                      {appliance.category}
                       {appliance.manufacturer ? ` · ${appliance.manufacturer}` : ''}
                     </p>
                   </div>
@@ -256,8 +261,12 @@ export default function Haustechnik() {
 
       {editing && (
         <Modal title={editing === 'new' ? 'Aufgabe hinzufügen' : 'Aufgabe bearbeiten'} onClose={() => setEditing(null)}>
+          {error && <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <ApplianceForm
             initialValues={valuesFromAppliance(editing === 'new' ? undefined : editing)}
+            categoryOptions={Array.from(
+              new Set(appliances.map((a) => a.category).filter((c) => !defaultApplianceCategories.includes(c))),
+            )}
             onSubmit={handleSave}
             onDelete={editing !== 'new' ? handleDelete : undefined}
             submitting={saving}

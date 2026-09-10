@@ -18,7 +18,7 @@ export type ContractCategory =
   | 'versicherung_sonstige'
   | 'sonstiges'
 
-export type ApplianceCategory = 'waermepumpe' | 'pv_anlage' | 'sonstiges'
+export type ApplianceCategory = string
 
 export type DocumentCategory =
   | 'lebensmittel'

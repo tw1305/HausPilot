@@ -98,7 +98,7 @@ create table contracts (
 create table appliances (
   id                     uuid primary key default gen_random_uuid(),
   household_id           uuid not null,
-  category               text not null check (category in ('waermepumpe','pv_anlage','sonstiges')),
+  category               text not null,
   name                   text not null,
   manufacturer           text,
   model                  text,
