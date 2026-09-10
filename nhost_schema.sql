@@ -15,6 +15,7 @@ drop table if exists appliances cascade;
 drop table if exists plant_care_recommendations cascade;
 drop table if exists plants cascade;
 drop table if exists vehicle_appointments cascade;
+drop table if exists contract_files cascade;
 drop table if exists contracts cascade;
 drop table if exists vehicles cascade;
 drop table if exists shopping_items cascade;
@@ -95,6 +96,17 @@ create table contracts (
   created_at                  timestamptz default now()
 );
 
+-- file_id verweist auf eine Datei im Nhost-Storage-Standard-Bucket (kein FK,
+-- da storage.files eine separate, servicegeführte Tabelle ist).
+create table contract_files (
+  id            uuid primary key default gen_random_uuid(),
+  household_id  uuid not null,
+  contract_id   uuid not null references contracts(id) on delete cascade,
+  file_id       uuid not null,
+  file_name     text,
+  created_at    timestamptz default now()
+);
+
 create table appliances (
   id                     uuid primary key default gen_random_uuid(),
   household_id           uuid not null,
@@ -165,6 +177,6 @@ create table document_files (
   created_at    timestamptz default now()
 );
 
--- Nach dem Ausführen: alle 11 Tabellen in der Hasura-Console tracken
+-- Nach dem Ausführen: alle 12 Tabellen in der Hasura-Console tracken
 -- (inkl. der vorgeschlagenen Beziehungen) und je Tabelle die user-Rolle
 -- konfigurieren. Genaue Schritte: siehe SETUP.md.

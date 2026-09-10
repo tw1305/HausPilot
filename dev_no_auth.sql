@@ -16,6 +16,7 @@ alter table vehicle_appointments        alter column household_id set default '1
 alter table plants                      alter column household_id set default '11111111-1111-1111-1111-111111111111';
 alter table plant_care_recommendations  alter column household_id set default '11111111-1111-1111-1111-111111111111';
 alter table contracts                   alter column household_id set default '11111111-1111-1111-1111-111111111111';
+alter table contract_files              alter column household_id set default '11111111-1111-1111-1111-111111111111';
 alter table appliances                  alter column household_id set default '11111111-1111-1111-1111-111111111111';
 alter table appliance_maintenance_log   alter column household_id set default '11111111-1111-1111-1111-111111111111';
 alter table shopping_items              alter column household_id set default '11111111-1111-1111-1111-111111111111';
@@ -31,6 +32,7 @@ alter table document_files              alter column household_id set default '1
 -- alter table plants                      alter column household_id drop default;
 -- alter table plant_care_recommendations  alter column household_id drop default;
 -- alter table contracts                   alter column household_id drop default;
+-- alter table contract_files              alter column household_id drop default;
 -- alter table appliances                  alter column household_id drop default;
 -- alter table appliance_maintenance_log   alter column household_id drop default;
 -- alter table shopping_items              alter column household_id drop default;

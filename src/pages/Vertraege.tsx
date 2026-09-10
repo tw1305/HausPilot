@@ -15,11 +15,11 @@ import { Kostenuebersicht } from '../components/vertraege/Kostenuebersicht'
 import { DocumentPhoto } from '../components/dokumente/DocumentPhoto'
 import { documentCategoryLabels } from '../components/dokumente/DocumentForm'
 import { AppDecor } from '../components/layout/AppDecor'
-import { gql } from '../lib/nhost'
+import { gql, uploadDocumentPhotos, deleteStorageFile } from '../lib/nhost'
 import { categories } from '../theme/categories'
-import { formatDateDe } from '../utils/dates'
+import { formatDateDe, todayIsoDate } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
-import type { Contract, Vehicle, DocumentRecord, DocumentFile } from '../types/database'
+import type { Contract, Vehicle, DocumentRecord, DocumentFile, ContractFile } from '../types/database'
 
 const cat = categories.vertraege
 
@@ -27,7 +27,12 @@ type LinkedDocument = Pick<DocumentRecord, 'id' | 'category' | 'vendor' | 'amoun
   document_files: Pick<DocumentFile, 'file_id'>[]
 }
 
-type ContractWithDocuments = Contract & { documents: LinkedDocument[] }
+type ContractWithDocuments = Contract & { documents: LinkedDocument[]; contract_files: ContractFile[] }
+
+/** Aktiv = kein Vertragsende gesetzt oder Ende liegt in der Zukunft; Passiv = Vertragsende liegt in der Vergangenheit. */
+function isContractActive(contract: Contract): boolean {
+  return !contract.contract_end_date || contract.contract_end_date >= todayIsoDate()
+}
 
 const LIST_QUERY = /* GraphQL */ `
   query ContractsAndVehicles {
@@ -57,6 +62,11 @@ const LIST_QUERY = /* GraphQL */ `
         document_files {
           file_id
         }
+      }
+      contract_files(order_by: { created_at: asc }) {
+        id
+        file_id
+        file_name
       }
     }
     vehicles {
@@ -95,6 +105,24 @@ const DELETE_CONTRACT = /* GraphQL */ `
   }
 `
 
+const INSERT_CONTRACT_FILES = /* GraphQL */ `
+  mutation InsertContractFiles($objects: [contract_files_insert_input!]!) {
+    insert_contract_files(objects: $objects) {
+      returning {
+        id
+      }
+    }
+  }
+`
+
+const DELETE_CONTRACT_FILE = /* GraphQL */ `
+  mutation DeleteContractFile($id: uuid!) {
+    delete_contract_files_by_pk(id: $id) {
+      id
+    }
+  }
+`
+
 function valuesFromContract(contract?: Contract): ContractFormValues {
   if (!contract) return emptyContractFormValues
   return {
@@ -123,6 +151,8 @@ export default function Vertraege() {
   const [editing, setEditing] = useState<ContractWithDocuments | null | 'new'>(null)
   const [saving, setSaving] = useState(false)
   const [showCosts, setShowCosts] = useState(false)
+  const [filtering, setFiltering] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<Array<'active' | 'inactive'>>([])
 
   const load = async () => {
     setLoading(true)
@@ -145,7 +175,16 @@ export default function Vertraege() {
   const vehicleOptions = vehicles.map((v) => ({ id: v.id, label: `${v.make} ${v.model} (${v.license_plate})` }))
   const vehicleLabel = (id: string | null) => vehicleOptions.find((v) => v.id === id)?.label
 
-  const handleSave = async (values: ContractFormValues) => {
+  const visibleContracts = contracts.filter((c) => {
+    if (statusFilter.length === 0) return true
+    const status = isContractActive(c) ? 'active' : 'inactive'
+    return statusFilter.includes(status)
+  })
+
+  const toggleStatusFilter = (s: 'active' | 'inactive') =>
+    setStatusFilter((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
+
+  const handleSave = async (values: ContractFormValues, newPhotos: File[]) => {
     setSaving(true)
     setError(null)
     const contractSet = {
@@ -169,10 +208,19 @@ export default function Vertraege() {
     const current = isNew ? undefined : (editing ?? undefined)
 
     try {
+      let contractId = current?.id
       if (isNew) {
-        await gql(INSERT_CONTRACT, { object: contractSet })
+        const res = await gql<{ insert_contracts_one: { id: string } }>(INSERT_CONTRACT, { object: contractSet })
+        contractId = res.insert_contracts_one.id
       } else if (current) {
         await gql(UPDATE_CONTRACT, { id: current.id, set: contractSet })
+      }
+
+      if (contractId && newPhotos.length > 0) {
+        const uploaded = await uploadDocumentPhotos(newPhotos)
+        await gql(INSERT_CONTRACT_FILES, {
+          objects: uploaded.map((f) => ({ contract_id: contractId, file_id: f.file_id, file_name: f.file_name })),
+        })
       }
       setEditing(null)
       await load()
@@ -188,6 +236,9 @@ export default function Vertraege() {
     if (!confirm(`Vertrag "${editing.provider}" wirklich löschen?`)) return
     setSaving(true)
     try {
+      for (const file of editing.contract_files) {
+        await deleteStorageFile(file.file_id)
+      }
       await gql(DELETE_CONTRACT, { id: editing.id })
       setEditing(null)
       await load()
@@ -195,6 +246,21 @@ export default function Vertraege() {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Löschen.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleDeleteFile = async (file: ContractFile) => {
+    try {
+      await deleteStorageFile(file.file_id)
+      await gql(DELETE_CONTRACT_FILE, { id: file.id })
+      setEditing((current) =>
+        current && current !== 'new'
+          ? { ...current, contract_files: current.contract_files.filter((f) => f.id !== file.id) }
+          : current,
+      )
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Löschen des Fotos.')
     }
   }
 
@@ -208,6 +274,9 @@ export default function Vertraege() {
           <Button variant="secondary" onClick={() => setShowCosts(true)}>
             Kostenübersicht
           </Button>
+          <Button variant="secondary" onClick={() => setFiltering(true)}>
+            Filtern{statusFilter.length > 0 ? ` (${statusFilter.length})` : ''}
+          </Button>
           <Button accent={cat.solid} onClick={() => setEditing('new')}>
             + Vertrag
           </Button>
@@ -219,9 +288,13 @@ export default function Vertraege() {
           <p className="text-sm text-slate-400">Lädt …</p>
         ) : contracts.length === 0 ? (
           <EmptyState title="Noch keine Verträge erfasst" hint="Erfasse Strom, Internet, Versicherungen und mehr." />
+        ) : visibleContracts.length === 0 ? (
+          <EmptyState title="Keine Verträge in diesem Status" hint="Filter zurücksetzen, um alle zu sehen." />
         ) : (
           <div className="space-y-3">
-            {contracts.map((contract) => (
+            {visibleContracts.map((contract) => {
+              const active = isContractActive(contract)
+              return (
               <Card
                 key={contract.id}
                 className="cursor-pointer border-transparent transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -239,12 +312,18 @@ export default function Vertraege() {
                       {contract.next_payment_date ? ` · nächste Zahlung ${formatDateDe(contract.next_payment_date)}` : ''}
                     </p>
                   </div>
+                  {!active && (
+                    <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+                      Passiv
+                    </span>
+                  )}
                   {contract.monthly_amount !== null && (
                     <p className="text-sm font-medium text-slate-600 shrink-0">{formatEUR(contract.monthly_amount)}/Mo.</p>
                   )}
                 </div>
               </Card>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
@@ -257,6 +336,8 @@ export default function Vertraege() {
           <ContractForm
             initialValues={valuesFromContract(editing === 'new' ? undefined : editing)}
             vehicles={vehicleOptions}
+            existingFiles={editing === 'new' ? [] : editing.contract_files}
+            onDeleteExistingFile={handleDeleteFile}
             onSubmit={handleSave}
             onDelete={editing !== 'new' ? handleDelete : undefined}
             submitting={saving}
@@ -300,6 +381,36 @@ export default function Vertraege() {
       {showCosts && (
         <Modal title="Kostenübersicht" onClose={() => setShowCosts(false)}>
           <Kostenuebersicht contracts={contracts} />
+        </Modal>
+      )}
+
+      {filtering && (
+        <Modal title="Nach Status filtern" onClose={() => setFiltering(false)}>
+          <div className="flex flex-wrap gap-2">
+            {(['active', 'inactive'] as const).map((s) => {
+              const active = statusFilter.includes(s)
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleStatusFilter(s)}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                    active ? `${cat.solid} border-transparent text-white` : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {s === 'active' ? 'Aktiv' : 'Passiv'}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex items-center justify-between gap-2 mt-5">
+            <Button type="button" variant="ghost" onClick={() => setStatusFilter([])} disabled={statusFilter.length === 0}>
+              Zurücksetzen
+            </Button>
+            <Button type="button" onClick={() => setFiltering(false)}>
+              Fertig
+            </Button>
+          </div>
         </Modal>
       )}
     </>

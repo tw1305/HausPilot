@@ -145,6 +145,22 @@ und ausführen. Erweitert nur den Check-Constraint der Spalte
 
 ---
 
+## I) Vertrag-Fotos nachrüsten (bei bereits bestehender Installation)
+
+1. Nhost-Dashboard → **Database → SQL Editor** → kompletten Inhalt von
+   [`add_contract_photos.sql`](./add_contract_photos.sql) einfügen und
+   ausführen. Legt nur die neue Tabelle `contract_files` an (analog zu
+   `document_files`) und setzt – nur falls `VITE_NHOST_ADMIN_SECRET` aktiv
+   ist – den gleichen Dev-Default für `household_id` wie bei den übrigen
+   Tabellen.
+2. Wie in Abschnitt C beschrieben: `contract_files` in der Hasura-Console
+   tracken (inkl. vorgeschlagener Beziehung `contract_files` auf `contracts`).
+3. Falls das echte Multi-Haushalt-Login (Abschnitt D) schon aktiv ist: für
+   die neue Tabelle dieselbe `user`-Rollen-Regel wie bei den anderen
+   Tabellen setzen (`household_id = X-Hasura-User-Id`).
+
+---
+
 ## Sicherheit vor einem echten Deployment
 
 Mit Schritt D ist die Trennung serverseitig echt: Ohne gültigen Login-Token gibt die

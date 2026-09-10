@@ -107,6 +107,15 @@ export interface Contract {
   created_at: string
 }
 
+export interface ContractFile {
+  id: string
+  household_id: string
+  contract_id: string
+  file_id: string
+  file_name: string | null
+  created_at: string
+}
+
 export interface Appliance {
   id: string
   household_id: string
