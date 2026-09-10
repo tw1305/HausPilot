@@ -57,6 +57,26 @@ export async function loginWithHousehold(name: string, password: string): Promis
   return nhost.getUserSession()
 }
 
+/**
+ * Ändert das Passwort des Haushalts selbst. Nhost verlangt für
+ * changeUserPassword eine gerade erst bestätigte ("elevated") Sitzung –
+ * deshalb wird hier zuerst mit dem aktuellen Passwort neu eingeloggt (das
+ * bestätigt gleichzeitig, dass es wirklich das richtige Passwort ist).
+ *
+ * WICHTIG: Laut Nhost widerruft ein erfolgreicher Passwortwechsel ALLE
+ * Sitzungen dieses Haushalts, inklusive der gerade benutzten. Der Aufrufer
+ * muss den Haushalt danach als ausgeloggt behandeln und zur Neuanmeldung
+ * auffordern.
+ */
+export async function changeHouseholdPassword(
+  householdNameValue: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  await nhost.auth.signInEmailPassword({ email: householdEmail(householdNameValue), password: currentPassword })
+  await nhost.auth.changeUserPassword({ newPassword })
+}
+
 export async function logout(): Promise<void> {
   const session = nhost.getUserSession()
   try {
