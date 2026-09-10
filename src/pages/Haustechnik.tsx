@@ -113,6 +113,8 @@ export default function Haustechnik() {
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<ApplianceWithLog | null | 'new'>(null)
   const [saving, setSaving] = useState(false)
+  const [filtering, setFiltering] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([])
 
   const load = async (): Promise<ApplianceWithLog[]> => {
     setLoading(true)
@@ -132,6 +134,13 @@ export default function Haustechnik() {
   useEffect(() => {
     void load()
   }, [])
+
+  const allCategories = Array.from(new Set([...defaultApplianceCategories, ...appliances.map((a) => a.category)]))
+  const visibleAppliances =
+    categoryFilter.length === 0 ? appliances : appliances.filter((a) => categoryFilter.includes(a.category))
+
+  const toggleCategoryFilter = (c: string) =>
+    setCategoryFilter((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]))
 
   const handleSave = async (values: ApplianceFormValues) => {
     setSaving(true)
@@ -222,8 +231,11 @@ export default function Haustechnik() {
       <PageHero title="Haus & Technik" category={cat} icon={<IconWrench className="w-6 h-6" />} />
 
       <div className="px-4 pt-5">
-        <div className="flex justify-end mb-3">
+        <div className="flex justify-end gap-2 mb-3">
           <Button accent={cat.solid} onClick={() => setEditing('new')}>+ Aufgabe</Button>
+          <Button variant="secondary" onClick={() => setFiltering(true)}>
+            Filtern{categoryFilter.length > 0 ? ` (${categoryFilter.length})` : ''}
+          </Button>
         </div>
 
         {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
@@ -231,10 +243,12 @@ export default function Haustechnik() {
         {loading ? (
           <p className="text-sm text-slate-400">Lädt …</p>
         ) : appliances.length === 0 ? (
-          <EmptyState title="Noch keine Geräte erfasst" hint="z. B. Technik, Haus oder Garten." />
+          <EmptyState title="Noch keine Aufgaben erfasst" hint="z. B. Technik, Haus oder Garten." />
+        ) : visibleAppliances.length === 0 ? (
+          <EmptyState title="Keine Aufgaben in dieser Kategorie" hint="Filter zurücksetzen, um alle zu sehen." />
         ) : (
           <div className="space-y-3">
-            {appliances.map((appliance) => {
+            {visibleAppliances.map((appliance) => {
               const CategoryIcon = iconForCategory(appliance.category)
               return (
               <Card key={appliance.id} className="hover:border-slate-300 transition-colors">
@@ -251,7 +265,7 @@ export default function Haustechnik() {
                   </div>
                   {appliance.next_maintenance_due && (
                     <div className="text-right shrink-0">
-                      <p className="text-xs text-slate-400">Wartung</p>
+                      <p className="text-xs text-slate-400">Fällig</p>
                       <p
                         className={`text-xs font-medium ${
                           daysUntil(appliance.next_maintenance_due) <= 30 ? 'text-amber-600' : 'text-slate-500'
@@ -322,6 +336,36 @@ export default function Haustechnik() {
               <MaintenanceLogForm onSubmit={(values) => handleAddLogEntry(editing.id, values)} />
             </div>
           )}
+        </Modal>
+      )}
+
+      {filtering && (
+        <Modal title="Nach Kategorie filtern" onClose={() => setFiltering(false)}>
+          <div className="flex flex-wrap gap-2">
+            {allCategories.map((c) => {
+              const active = categoryFilter.includes(c)
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => toggleCategoryFilter(c)}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                    active ? `${cat.solid} border-transparent text-white` : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {c}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex items-center justify-between gap-2 mt-5">
+            <Button type="button" variant="ghost" onClick={() => setCategoryFilter([])} disabled={categoryFilter.length === 0}>
+              Zurücksetzen
+            </Button>
+            <Button type="button" onClick={() => setFiltering(false)}>
+              Fertig
+            </Button>
+          </div>
         </Modal>
       )}
     </>

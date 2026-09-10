@@ -125,7 +125,7 @@ export function ApplianceForm({ initialValues, categoryOptions, onSubmit, onDele
         <FormField label="Installiert am">
           <Input type="date" value={values.installed_on} onChange={(e) => set('installed_on', e.target.value)} />
         </FormField>
-        <FormField label="Nächste Wartung fällig">
+        <FormField label="Fällig">
           <Input
             type="date"
             value={values.next_maintenance_due}

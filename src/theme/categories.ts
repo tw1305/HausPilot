@@ -81,7 +81,7 @@ export const categories: Record<CategoryKey, CategoryTheme> = {
   },
   haustechnik: {
     key: 'haustechnik',
-    label: 'Technik',
+    label: 'ToDo',
     path: '/haustechnik',
     text: 'text-slate-700',
     tintBg: 'bg-slate-100',

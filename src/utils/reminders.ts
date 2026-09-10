@@ -102,7 +102,7 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
       items.push({
         id: `appliance-maintenance-${appliance.id}`,
         type: 'appliance_maintenance',
-        title: 'Wartung fällig',
+        title: 'Fällig',
         subtitle: appliance.name,
         dueDate: new Date(appliance.next_maintenance_due),
         daysUntil: daysUntil(appliance.next_maintenance_due),
