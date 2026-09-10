@@ -35,6 +35,7 @@ const LIST_QUERY = /* GraphQL */ `
         month
         recurring
         year
+        last_done_year
         notes
         source
         created_at
@@ -85,7 +86,7 @@ const INSERT_RECOMMENDATIONS = /* GraphQL */ `
 
 function nextDueDate(plant: PlantWithRecommendations): Date | null {
   const dates = plant.plant_care_recommendations.map((r) =>
-    nextOccurrenceForMonth(r.month, r.recurring, r.year),
+    nextOccurrenceForMonth(r.month, r.recurring, r.year, new Date(), r.last_done_year),
   )
   // Konkret gesetzter Rückschnitt-Termin fließt mit in die „nächste Pflege" ein
   if (plant.next_pruning_on) dates.push(new Date(plant.next_pruning_on))
@@ -107,6 +108,7 @@ function valuesFromPlant(plant?: PlantWithRecommendations): PlantFormValues {
       title: r.title,
       month: r.month,
       recurring: r.recurring,
+      last_done_year: r.last_done_year,
     })),
   }
 }
@@ -175,6 +177,7 @@ export default function Garten() {
           title: r.title,
           month: r.month,
           recurring: r.recurring,
+          last_done_year: r.last_done_year ?? null,
           source: findPlantCareTemplate(values.plant_type) ? 'template' : 'manual',
         }))
       if (recommendationsToInsert.length > 0) {

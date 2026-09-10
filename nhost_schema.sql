@@ -71,6 +71,7 @@ create table plant_care_recommendations (
   month         int not null check (month between 1 and 12),
   recurring     boolean not null default true,
   year          int,
+  last_done_year int,
   notes         text,
   source        text not null default 'manual' check (source in ('manual','template')),
   created_at    timestamptz default now()

@@ -1,12 +1,13 @@
-import { IconTrash, IconPlus } from '../layout/NavIcons'
+import { IconTrash, IconPlus, IconCheck } from '../layout/NavIcons'
 import { Input, Select } from '../ui/FormField'
-import { formatMonthDe } from '../../utils/dates'
+import { formatDateDe, formatMonthDe, nextOccurrenceForMonth } from '../../utils/dates'
 
 export interface CareRecommendationDraft {
   id?: string
   title: string
   month: number
   recurring: boolean
+  last_done_year?: number | null
 }
 
 interface CareRecommendationEditorProps {
@@ -25,6 +26,12 @@ export function CareRecommendationEditor({ items, onChange }: CareRecommendation
     onChange(items.filter((_, i) => i !== index))
   }
 
+  const markDone = (index: number) => {
+    const item = items[index]
+    const due = nextOccurrenceForMonth(item.month, item.recurring, null, new Date(), item.last_done_year ?? null)
+    update(index, { last_done_year: due.getFullYear() })
+  }
+
   const add = () => {
     onChange([...items, { title: '', month: 3, recurring: true }])
   }
@@ -34,35 +41,52 @@ export function CareRecommendationEditor({ items, onChange }: CareRecommendation
       <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Pflegeempfehlungen</h3>
       {items.length === 0 && <p className="text-sm text-gray-600 mb-2">Noch keine Empfehlungen.</p>}
       <div className="space-y-2 mb-2">
-        {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <Input
-              value={item.title}
-              onChange={(e) => update(index, { title: e.target.value })}
-              placeholder="z. B. Schnitt"
-              className="flex-1"
-            />
-            <Select
-              value={item.month}
-              onChange={(e) => update(index, { month: Number(e.target.value) })}
-              className="w-32 shrink-0"
-            >
-              {months.map((m) => (
-                <option key={m} value={m}>
-                  {formatMonthDe(m)}
-                </option>
-              ))}
-            </Select>
-            <button
-              type="button"
-              onClick={() => remove(index)}
-              className="text-gray-600 hover:text-red-400 p-1 shrink-0"
-              aria-label="Empfehlung entfernen"
-            >
-              <IconTrash className="w-4 h-4" />
-            </button>
+        {items.map((item, index) => {
+          const due = nextOccurrenceForMonth(item.month, item.recurring, null, new Date(), item.last_done_year ?? null)
+          return (
+          <div key={index} className="rounded-xl border border-slate-200 p-2">
+            <div className="flex items-center gap-2">
+              <Input
+                value={item.title}
+                onChange={(e) => update(index, { title: e.target.value })}
+                placeholder="z. B. Schnitt"
+                className="flex-1"
+              />
+              <Select
+                value={item.month}
+                onChange={(e) => update(index, { month: Number(e.target.value) })}
+                className="w-32 shrink-0"
+              >
+                {months.map((m) => (
+                  <option key={m} value={m}>
+                    {formatMonthDe(m)}
+                  </option>
+                ))}
+              </Select>
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                className="text-gray-600 hover:text-red-400 p-1 shrink-0"
+                aria-label="Empfehlung entfernen"
+              >
+                <IconTrash className="w-4 h-4" />
+              </button>
+            </div>
+            {item.id && (
+              <div className="mt-1.5 flex items-center justify-between gap-2 pl-1">
+                <span className="text-xs text-slate-400">Fällig: {formatDateDe(due)}</span>
+                <button
+                  type="button"
+                  onClick={() => markDone(index)}
+                  className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-emerald-600"
+                >
+                  <IconCheck className="w-3.5 h-3.5" /> Erledigt
+                </button>
+              </div>
+            )}
           </div>
-        ))}
+          )
+        })}
       </div>
       <button
         type="button"

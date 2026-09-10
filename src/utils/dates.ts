@@ -32,12 +32,18 @@ export const daysUntil = (date: Date | string, referenceDate: Date = new Date())
  * wiederkehrende) Gartenpflege-Empfehlung. Bei recurring = true wird der
  * Monat dieses Jahr genommen, falls er noch nicht vorbei ist, sonst
  * nächstes Jahr – so entsteht automatisch jedes Jahr eine neue Erinnerung.
+ *
+ * `lastDoneYear` ist gesetzt, wenn die Empfehlung für ein bestimmtes Jahr
+ * bereits als "erledigt" markiert wurde – der Termin springt dann direkt
+ * aufs nächste noch nicht erledigte Jahr, unabhängig davon, ob der Monat
+ * kalendarisch schon vorbei ist.
  */
 export const nextOccurrenceForMonth = (
   month: number,
   recurring: boolean,
   year: number | null,
   referenceDate: Date = new Date(),
+  lastDoneYear: number | null = null,
 ): Date => {
   const today = startOfDay(referenceDate)
 
@@ -48,6 +54,9 @@ export const nextOccurrenceForMonth = (
   let candidateYear = today.getFullYear()
   let candidate = new Date(candidateYear, month, 0) // letzter Tag des Monats
   if (candidate.getTime() < today.getTime()) {
+    candidateYear += 1
+  }
+  while (lastDoneYear && candidateYear <= lastDoneYear) {
     candidateYear += 1
   }
   return new Date(candidateYear, month - 1, 1)

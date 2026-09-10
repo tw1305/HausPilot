@@ -38,6 +38,7 @@ const QUERY = /* GraphQL */ `
         month
         recurring
         year
+        last_done_year
         notes
         source
         created_at

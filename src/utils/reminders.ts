@@ -70,7 +70,7 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
 
   for (const plant of input.plants) {
     for (const rec of plant.plant_care_recommendations) {
-      const dueDate = nextOccurrenceForMonth(rec.month, rec.recurring, rec.year)
+      const dueDate = nextOccurrenceForMonth(rec.month, rec.recurring, rec.year, new Date(), rec.last_done_year)
       items.push({
         id: `plant-care-${rec.id}`,
         type: 'plant_care',

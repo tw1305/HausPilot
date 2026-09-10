@@ -82,6 +82,7 @@ export interface PlantCareRecommendation {
   month: number
   recurring: boolean
   year: number | null
+  last_done_year: number | null
   notes: string | null
   source: 'manual' | 'template'
   created_at: string
