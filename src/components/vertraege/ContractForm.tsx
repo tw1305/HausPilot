@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { FormField, Input, Select, Textarea } from '../ui/FormField'
 import { Button } from '../ui/Button'
-import { IconTrash, IconCamera, IconDocument } from '../layout/NavIcons'
+import { IconTrash, IconCamera, IconDocument, IconCheck } from '../layout/NavIcons'
 import { DocumentPhoto } from '../dokumente/DocumentPhoto'
 import { toIsoDate } from '../../utils/dates'
 import type { ContractCategory, ContractFile } from '../../types/database'
@@ -85,6 +85,7 @@ interface ContractFormProps {
   onDeleteExistingFile: (file: ContractFile) => void | Promise<void>
   onSubmit: (values: ContractFormValues, newPhotos: File[]) => void | Promise<void>
   onDelete?: () => void
+  onMarkCancellationHandled?: () => void
   submitting?: boolean
 }
 
@@ -95,6 +96,7 @@ export function ContractForm({
   onDeleteExistingFile,
   onSubmit,
   onDelete,
+  onMarkCancellationHandled,
   submitting,
 }: ContractFormProps) {
   const [values, setValues] = useState(initialValues)
@@ -226,6 +228,13 @@ export function ContractForm({
           />
         </FormField>
       </div>
+      {onMarkCancellationHandled && values.cancellation_deadline_date && (
+        <div className="-mt-2 mb-3 flex justify-end">
+          <Button type="button" variant="secondary" onClick={onMarkCancellationHandled}>
+            <IconCheck className="w-4 h-4" /> Kündigungsfrist erledigt
+          </Button>
+        </div>
+      )}
 
       <FormField label="Nächste Zahlung">
         <Input type="date" value={values.next_payment_date} onChange={(e) => set('next_payment_date', e.target.value)} />

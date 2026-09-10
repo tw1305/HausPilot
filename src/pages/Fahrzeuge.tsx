@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -140,6 +141,7 @@ function valuesFromVehicle(vehicle?: VehicleWithAppointments): VehicleFormValues
 }
 
 export default function Fahrzeuge() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [vehicles, setVehicles] = useState<VehicleWithAppointments[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -162,6 +164,17 @@ export default function Fahrzeuge() {
   useEffect(() => {
     void load()
   }, [])
+
+  // Direkt-Link von einer Erinnerung (z. B. Dashboard) öffnet gleich das passende
+  // Fahrzeug zum Bearbeiten, statt dass man es in der Liste erst suchen muss.
+  useEffect(() => {
+    if (loading) return
+    const vehicleId = searchParams.get('vehicle')
+    if (!vehicleId) return
+    const vehicle = vehicles.find((v) => v.id === vehicleId)
+    if (vehicle) setEditing(vehicle)
+    setSearchParams({}, { replace: true })
+  }, [loading, vehicles, searchParams, setSearchParams])
 
   const upsertAppointment = async (
     vehicleId: string,
@@ -246,6 +259,21 @@ export default function Fahrzeuge() {
     }
   }
 
+  const handleMarkAppointmentDone = async (type: VehicleAppointmentType) => {
+    if (!editing || editing === 'new') return
+    setError(null)
+    setSaving(true)
+    try {
+      await upsertAppointment(editing.id, editing.vehicle_appointments, type, '')
+      setEditing(null)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Speichern.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <>
       <AppDecor />
@@ -311,6 +339,7 @@ export default function Fahrzeuge() {
             initialValues={valuesFromVehicle(editing === 'new' ? undefined : editing)}
             onSubmit={handleSave}
             onDelete={editing !== 'new' ? handleDelete : undefined}
+            onMarkAppointmentDone={editing !== 'new' ? handleMarkAppointmentDone : undefined}
             submitting={saving}
           />
         </Modal>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -144,6 +145,7 @@ function valuesFromContract(contract?: Contract): ContractFormValues {
 }
 
 export default function Vertraege() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [contracts, setContracts] = useState<ContractWithDocuments[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(true)
@@ -171,6 +173,17 @@ export default function Vertraege() {
   useEffect(() => {
     void load()
   }, [])
+
+  // Direkt-Link von einer Erinnerung (z. B. Dashboard) öffnet gleich den passenden
+  // Vertrag zum Bearbeiten, statt dass man ihn in der Liste erst suchen muss.
+  useEffect(() => {
+    if (loading) return
+    const contractId = searchParams.get('contract')
+    if (!contractId) return
+    const contract = contracts.find((c) => c.id === contractId)
+    if (contract) setEditing(contract)
+    setSearchParams({}, { replace: true })
+  }, [loading, contracts, searchParams, setSearchParams])
 
   const vehicleOptions = vehicles.map((v) => ({ id: v.id, label: `${v.make} ${v.model} (${v.license_plate})` }))
   const vehicleLabel = (id: string | null) => vehicleOptions.find((v) => v.id === id)?.label
@@ -244,6 +257,24 @@ export default function Vertraege() {
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Löschen.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleMarkCancellationHandled = async () => {
+    if (!editing || editing === 'new') return
+    setError(null)
+    setSaving(true)
+    try {
+      await gql(UPDATE_CONTRACT, {
+        id: editing.id,
+        set: { cancellation_deadline_date: null, reminder_date: null },
+      })
+      setEditing(null)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Speichern.')
     } finally {
       setSaving(false)
     }
@@ -340,6 +371,7 @@ export default function Vertraege() {
             onDeleteExistingFile={handleDeleteFile}
             onSubmit={handleSave}
             onDelete={editing !== 'new' ? handleDelete : undefined}
+            onMarkCancellationHandled={editing !== 'new' ? handleMarkCancellationHandled : undefined}
             submitting={saving}
           />
 

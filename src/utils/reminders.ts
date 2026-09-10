@@ -63,7 +63,7 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
         subtitle: vehicleLabel,
         dueDate: new Date(appointment.due_date),
         daysUntil: daysUntil(appointment.due_date),
-        link: '/fahrzeuge',
+        link: `/fahrzeuge?vehicle=${vehicle.id}`,
       })
     }
   }
@@ -92,7 +92,7 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
         subtitle: contract.provider,
         dueDate: new Date(contract.cancellation_deadline_date),
         daysUntil: daysUntil(contract.cancellation_deadline_date),
-        link: '/vertraege',
+        link: `/vertraege?contract=${contract.id}`,
       })
     }
   }

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { FormField, Input, Select, Textarea } from '../ui/FormField'
 import { Button } from '../ui/Button'
+import { IconCheck } from '../layout/NavIcons'
 import type { VehicleAppointmentType } from '../../types/database'
 
 export interface VehicleFormValues {
@@ -37,10 +38,17 @@ interface VehicleFormProps {
   initialValues: VehicleFormValues
   onSubmit: (values: VehicleFormValues) => void | Promise<void>
   onDelete?: () => void
+  onMarkAppointmentDone?: (type: VehicleAppointmentType) => void
   submitting?: boolean
 }
 
-export function VehicleForm({ initialValues, onSubmit, onDelete, submitting }: VehicleFormProps) {
+export function VehicleForm({
+  initialValues,
+  onSubmit,
+  onDelete,
+  onMarkAppointmentDone,
+  submitting,
+}: VehicleFormProps) {
   const [values, setValues] = useState(initialValues)
 
   const set = <K extends keyof VehicleFormValues>(key: K, value: VehicleFormValues[K]) =>
@@ -101,10 +109,24 @@ export function VehicleForm({ initialValues, onSubmit, onDelete, submitting }: V
 
       <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mt-4 mb-2">Termine</h3>
       <FormField label="TÜV / Pickerl fällig am">
-        <Input type="date" value={values.tuv_date} onChange={(e) => set('tuv_date', e.target.value)} />
+        <div className="flex gap-2">
+          <Input type="date" value={values.tuv_date} onChange={(e) => set('tuv_date', e.target.value)} className="flex-1" />
+          {onMarkAppointmentDone && values.tuv_date && (
+            <Button type="button" variant="secondary" onClick={() => onMarkAppointmentDone('tuv_pickerl')}>
+              <IconCheck className="w-4 h-4" /> Erledigt
+            </Button>
+          )}
+        </div>
       </FormField>
       <FormField label="Service fällig am">
-        <Input type="date" value={values.service_date} onChange={(e) => set('service_date', e.target.value)} />
+        <div className="flex gap-2">
+          <Input type="date" value={values.service_date} onChange={(e) => set('service_date', e.target.value)} className="flex-1" />
+          {onMarkAppointmentDone && values.service_date && (
+            <Button type="button" variant="secondary" onClick={() => onMarkAppointmentDone('service')}>
+              <IconCheck className="w-4 h-4" /> Erledigt
+            </Button>
+          )}
+        </div>
       </FormField>
       <div className="grid grid-cols-[2fr_1fr] gap-3">
         <FormField label="Reifenwechsel fällig am">
@@ -118,6 +140,13 @@ export function VehicleForm({ initialValues, onSubmit, onDelete, submitting }: V
           </Select>
         </FormField>
       </div>
+      {onMarkAppointmentDone && values.tire_date && (
+        <div className="-mt-2 mb-3 flex justify-end">
+          <Button type="button" variant="secondary" onClick={() => onMarkAppointmentDone(values.tire_season)}>
+            <IconCheck className="w-4 h-4" /> Reifenwechsel erledigt
+          </Button>
+        </div>
+      )}
 
       <FormField label="Notizen">
         <Textarea value={values.notes} onChange={(e) => set('notes', e.target.value)} />
