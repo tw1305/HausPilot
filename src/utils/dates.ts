@@ -1,3 +1,5 @@
+import type { RecurrenceUnit } from '../types/database'
+
 const startOfDay = (date: Date): Date => {
   const copy = new Date(date)
   copy.setHours(0, 0, 0, 0)
@@ -79,6 +81,37 @@ export const formatMonthDe = (month: number): string =>
   new Intl.DateTimeFormat('de-DE', { month: 'long' }).format(new Date(2000, month - 1, 1))
 
 export const todayIsoDate = (): string => toIsoDate(new Date())
+
+const recurrenceUnitLabels: Record<RecurrenceUnit, { singular: string; plural: string }> = {
+  days: { singular: 'Tag', plural: 'Tage' },
+  weeks: { singular: 'Woche', plural: 'Wochen' },
+  months: { singular: 'Monat', plural: 'Monate' },
+  years: { singular: 'Jahr', plural: 'Jahre' },
+}
+
+export const formatRecurrence = (amount: number, unit: RecurrenceUnit): string =>
+  `alle ${amount} ${amount === 1 ? recurrenceUnitLabels[unit].singular : recurrenceUnitLabels[unit].plural}`
+
+/** Addiert einen Turnus (z. B. 3 Monate) auf ein YYYY-MM-DD-Datum und liefert das Ergebnis wieder als YYYY-MM-DD. */
+export const addInterval = (isoDate: string, amount: number, unit: RecurrenceUnit): string => {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  switch (unit) {
+    case 'days':
+      date.setDate(date.getDate() + amount)
+      break
+    case 'weeks':
+      date.setDate(date.getDate() + amount * 7)
+      break
+    case 'months':
+      date.setMonth(date.getMonth() + amount)
+      break
+    case 'years':
+      date.setFullYear(date.getFullYear() + amount)
+      break
+  }
+  return toIsoDate(date)
+}
 
 export const formatWeekdayDateDe = (date: Date = new Date()): string =>
   new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(date)

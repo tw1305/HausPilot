@@ -15,7 +15,7 @@ import {
 import { MaintenanceLogForm, type MaintenanceLogFormValues } from '../components/haustechnik/MaintenanceLogForm'
 import { gql } from '../lib/nhost'
 import { categories } from '../theme/categories'
-import { daysUntil, formatDateDe } from '../utils/dates'
+import { addInterval, daysUntil, formatDateDe, formatRecurrence, todayIsoDate } from '../utils/dates'
 import { formatEUR } from '../utils/currency'
 import type { Appliance, ApplianceMaintenanceLogEntry } from '../types/database'
 
@@ -45,6 +45,8 @@ const LIST_QUERY = /* GraphQL */ `
       serial_number
       installed_on
       next_maintenance_due
+      recurrence_amount
+      recurrence_unit
       details
       notes
       created_at
@@ -103,6 +105,8 @@ function valuesFromAppliance(appliance?: ApplianceWithLog): ApplianceFormValues 
     serial_number: appliance.serial_number ?? '',
     installed_on: appliance.installed_on ?? '',
     next_maintenance_due: appliance.next_maintenance_due ?? '',
+    recurrence_amount: appliance.recurrence_amount ? String(appliance.recurrence_amount) : '',
+    recurrence_unit: appliance.recurrence_unit ?? '',
     notes: appliance.notes ?? '',
   }
 }
@@ -145,6 +149,7 @@ export default function Haustechnik() {
   const handleSave = async (values: ApplianceFormValues) => {
     setSaving(true)
     setError(null)
+    const hasRecurrence = values.recurrence_amount.trim() !== '' && values.recurrence_unit !== ''
     const applianceSet = {
       category: values.category,
       name: values.name,
@@ -153,6 +158,8 @@ export default function Haustechnik() {
       serial_number: values.serial_number || null,
       installed_on: values.installed_on || null,
       next_maintenance_due: values.next_maintenance_due || null,
+      recurrence_amount: hasRecurrence ? Number(values.recurrence_amount) : null,
+      recurrence_unit: hasRecurrence ? values.recurrence_unit : null,
       notes: values.notes || null,
     }
 
@@ -195,25 +202,35 @@ export default function Haustechnik() {
 
   const handleMarkDone = async (target: ApplianceWithLog) => {
     setError(null)
+    const nextDue =
+      target.recurrence_amount && target.recurrence_unit
+        ? addInterval(todayIsoDate(), target.recurrence_amount, target.recurrence_unit)
+        : null
     try {
-      await gql(UPDATE_APPLIANCE, { id: target.id, set: { next_maintenance_due: null } })
+      await gql(UPDATE_APPLIANCE, { id: target.id, set: { next_maintenance_due: nextDue } })
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Speichern.')
     }
   }
 
-  const handleAddLogEntry = async (applianceId: string, values: MaintenanceLogFormValues) => {
+  const handleAddLogEntry = async (appliance: ApplianceWithLog, values: MaintenanceLogFormValues) => {
     try {
       await gql(INSERT_LOG_ENTRY, {
         object: {
-          appliance_id: applianceId,
+          appliance_id: appliance.id,
           performed_on: values.performed_on,
           description: values.description,
           performed_by: values.performed_by || null,
           cost: values.cost ? Number(values.cost) : null,
         },
       })
+      if (appliance.recurrence_amount && appliance.recurrence_unit) {
+        await gql(UPDATE_APPLIANCE, {
+          id: appliance.id,
+          set: { next_maintenance_due: addInterval(values.performed_on, appliance.recurrence_amount, appliance.recurrence_unit) },
+        })
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Speichern.')
       return
@@ -221,7 +238,7 @@ export default function Haustechnik() {
     const rows = await load()
     setEditing((current) => {
       if (!current || current === 'new') return current
-      return rows.find((a) => a.id === applianceId) ?? current
+      return rows.find((a) => a.id === appliance.id) ?? current
     })
   }
 
@@ -273,6 +290,11 @@ export default function Haustechnik() {
                       >
                         {formatDateDe(appliance.next_maintenance_due)}
                       </p>
+                      {appliance.recurrence_amount && appliance.recurrence_unit && (
+                        <p className="text-[10px] text-slate-400">
+                          {formatRecurrence(appliance.recurrence_amount, appliance.recurrence_unit)}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -333,7 +355,7 @@ export default function Haustechnik() {
                     ))}
                 </ul>
               )}
-              <MaintenanceLogForm onSubmit={(values) => handleAddLogEntry(editing.id, values)} />
+              <MaintenanceLogForm onSubmit={(values) => handleAddLogEntry(editing, values)} />
             </div>
           )}
         </Modal>

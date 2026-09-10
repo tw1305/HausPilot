@@ -105,6 +105,8 @@ create table appliances (
   serial_number          text,
   installed_on           date,
   next_maintenance_due   date,
+  recurrence_amount      integer,
+  recurrence_unit        text check (recurrence_unit in ('days', 'weeks', 'months', 'years')),
   details                jsonb not null default '{}',
   notes                  text,
   created_at             timestamptz default now()

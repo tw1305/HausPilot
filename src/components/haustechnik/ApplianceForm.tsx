@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { FormField, Input, Select, Textarea } from '../ui/FormField'
 import { Button } from '../ui/Button'
-import type { ApplianceCategory } from '../../types/database'
+import type { ApplianceCategory, RecurrenceUnit } from '../../types/database'
 
 export interface ApplianceFormValues {
   category: ApplianceCategory
@@ -11,6 +11,8 @@ export interface ApplianceFormValues {
   serial_number: string
   installed_on: string
   next_maintenance_due: string
+  recurrence_amount: string
+  recurrence_unit: RecurrenceUnit | ''
   notes: string
 }
 
@@ -22,8 +24,17 @@ export const emptyApplianceFormValues: ApplianceFormValues = {
   serial_number: '',
   installed_on: '',
   next_maintenance_due: '',
+  recurrence_amount: '',
+  recurrence_unit: '',
   notes: '',
 }
+
+const recurrenceUnitOptions: { value: RecurrenceUnit; label: string }[] = [
+  { value: 'days', label: 'Tage' },
+  { value: 'weeks', label: 'Wochen' },
+  { value: 'months', label: 'Monate' },
+  { value: 'years', label: 'Jahre' },
+]
 
 /** Feste Grund-Kategorien; darüber hinaus kann jeder Haushalt eigene Kategorien anlegen. */
 export const defaultApplianceCategories = ['Technik', 'Haus', 'Garten', 'Sonstiges']
@@ -133,6 +144,33 @@ export function ApplianceForm({ initialValues, categoryOptions, onSubmit, onDele
           />
         </FormField>
       </div>
+      <FormField label="Turnus">
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            min="1"
+            value={values.recurrence_amount}
+            onChange={(e) => set('recurrence_amount', e.target.value)}
+            placeholder="z. B. 3"
+            className="w-20"
+          />
+          <Select
+            value={values.recurrence_unit}
+            onChange={(e) => set('recurrence_unit', e.target.value as RecurrenceUnit | '')}
+          >
+            <option value="">Kein Turnus</option>
+            {recurrenceUnitOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <p className="mt-1.5 text-xs text-slate-400">
+          Bei gesetztem Turnus wird nach „Erledigt" bzw. einem neuen Protokoll-Eintrag automatisch das nächste
+          Fälligkeitsdatum berechnet.
+        </p>
+      </FormField>
       <FormField label="Notizen">
         <Textarea value={values.notes} onChange={(e) => set('notes', e.target.value)} />
       </FormField>

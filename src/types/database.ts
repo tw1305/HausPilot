@@ -20,6 +20,8 @@ export type ContractCategory =
 
 export type ApplianceCategory = string
 
+export type RecurrenceUnit = 'days' | 'weeks' | 'months' | 'years'
+
 export type DocumentCategory =
   | 'lebensmittel'
   | 'haushalt'
@@ -115,6 +117,8 @@ export interface Appliance {
   serial_number: string | null
   installed_on: string | null
   next_maintenance_due: string | null
+  recurrence_amount: number | null
+  recurrence_unit: RecurrenceUnit | null
   details: Record<string, unknown>
   notes: string | null
   created_at: string
