@@ -106,7 +106,7 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
         subtitle: appliance.name,
         dueDate: new Date(appliance.next_maintenance_due),
         daysUntil: daysUntil(appliance.next_maintenance_due),
-        link: '/haustechnik',
+        link: `/haustechnik?appliance=${appliance.id}`,
       })
     }
   }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -112,6 +113,7 @@ function valuesFromAppliance(appliance?: ApplianceWithLog): ApplianceFormValues 
 }
 
 export default function Haustechnik() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [appliances, setAppliances] = useState<ApplianceWithLog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -138,6 +140,17 @@ export default function Haustechnik() {
   useEffect(() => {
     void load()
   }, [])
+
+  // Direkt-Link von einer Erinnerung (z. B. Dashboard) öffnet gleich die passende
+  // Aufgabe zum Bearbeiten, statt dass man sie in der Liste erst suchen muss.
+  useEffect(() => {
+    if (loading) return
+    const applianceId = searchParams.get('appliance')
+    if (!applianceId) return
+    const appliance = appliances.find((a) => a.id === applianceId)
+    if (appliance) setEditing(appliance)
+    setSearchParams({}, { replace: true })
+  }, [loading, appliances, searchParams, setSearchParams])
 
   const allCategories = Array.from(new Set([...defaultApplianceCategories, ...appliances.map((a) => a.category)]))
   const visibleAppliances =
