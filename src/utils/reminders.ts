@@ -78,7 +78,7 @@ export function buildReminders(input: RemindersInput): ReminderItem[] {
         subtitle: plant.name,
         dueDate,
         daysUntil: daysUntil(dueDate),
-        link: '/garten',
+        link: `/garten?plant=${plant.id}`,
       })
     }
   }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { PageHero } from '../components/layout/PageHero'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -114,6 +115,7 @@ function valuesFromPlant(plant?: PlantWithRecommendations): PlantFormValues {
 }
 
 export default function Garten() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [plants, setPlants] = useState<PlantWithRecommendations[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -136,6 +138,17 @@ export default function Garten() {
   useEffect(() => {
     void load()
   }, [])
+
+  // Direkt-Link von einer Erinnerung (z. B. Dashboard) öffnet gleich die passende
+  // Pflanze zum Bearbeiten, statt dass man sie in der Liste erst suchen muss.
+  useEffect(() => {
+    if (loading) return
+    const plantId = searchParams.get('plant')
+    if (!plantId) return
+    const plant = plants.find((p) => p.id === plantId)
+    if (plant) setEditing(plant)
+    setSearchParams({}, { replace: true })
+  }, [loading, plants, searchParams, setSearchParams])
 
   const handleSave = async (values: PlantFormValues) => {
     setSaving(true)
