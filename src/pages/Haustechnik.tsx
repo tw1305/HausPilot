@@ -14,6 +14,7 @@ import {
   type ApplianceFormValues,
 } from '../components/haustechnik/ApplianceForm'
 import { MaintenanceLogForm, type MaintenanceLogFormValues } from '../components/haustechnik/MaintenanceLogForm'
+import { taskTemplates, suggestedDueDate, type TaskTemplate } from '../data/taskTemplates'
 import { gql } from '../lib/nhost'
 import { categories } from '../theme/categories'
 import { addInterval, daysUntil, formatDateDe, formatRecurrence, todayIsoDate } from '../utils/dates'
@@ -112,6 +113,18 @@ function valuesFromAppliance(appliance?: ApplianceWithLog): ApplianceFormValues 
   }
 }
 
+function valuesFromTemplate(template: TaskTemplate): ApplianceFormValues {
+  return {
+    ...emptyApplianceFormValues,
+    category: template.category,
+    name: template.name,
+    next_maintenance_due: suggestedDueDate(template),
+    recurrence_amount: String(template.recurrence_amount),
+    recurrence_unit: template.recurrence_unit,
+    notes: template.notes ?? '',
+  }
+}
+
 export default function Haustechnik() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [appliances, setAppliances] = useState<ApplianceWithLog[]>([])
@@ -121,6 +134,20 @@ export default function Haustechnik() {
   const [saving, setSaving] = useState(false)
   const [filtering, setFiltering] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState<string[]>([])
+  const [pickingTemplate, setPickingTemplate] = useState(false)
+  // Vorbefüllte Werte, wenn eine neue Aufgabe aus einer Vorlage entsteht (wird erst beim Speichern angelegt)
+  const [templateValues, setTemplateValues] = useState<ApplianceFormValues | null>(null)
+
+  const closeEditing = () => {
+    setEditing(null)
+    setTemplateValues(null)
+  }
+
+  const startFromTemplate = (template: TaskTemplate) => {
+    setTemplateValues(valuesFromTemplate(template))
+    setPickingTemplate(false)
+    setEditing('new')
+  }
 
   const load = async (): Promise<ApplianceWithLog[]> => {
     setLoading(true)
@@ -185,7 +212,7 @@ export default function Haustechnik() {
       } else if (current) {
         await gql(UPDATE_APPLIANCE, { id: current.id, set: applianceSet })
       }
-      setEditing(null)
+      closeEditing()
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Speichern.')
@@ -270,7 +297,16 @@ export default function Haustechnik() {
 
       <div className="px-4 pt-5">
         <div className="flex justify-end gap-2 mb-3">
-          <Button accent={cat.solid} onClick={() => setEditing('new')}>+ Aufgabe</Button>
+          <Button variant="secondary" onClick={() => setPickingTemplate(true)}>+ Vorlagen</Button>
+          <Button
+            accent={cat.solid}
+            onClick={() => {
+              setTemplateValues(null)
+              setEditing('new')
+            }}
+          >
+            + Aufgabe
+          </Button>
           <Button variant="secondary" onClick={() => setFiltering(true)}>
             Filtern{categoryFilter.length > 0 ? ` (${categoryFilter.length})` : ''}
           </Button>
@@ -345,10 +381,16 @@ export default function Haustechnik() {
       </div>
 
       {editing && (
-        <Modal title={editing === 'new' ? 'Aufgabe hinzufügen' : 'Aufgabe bearbeiten'} onClose={() => setEditing(null)}>
+        <Modal
+          title={editing !== 'new' ? 'Aufgabe bearbeiten' : templateValues ? 'Vorlage übernehmen' : 'Aufgabe hinzufügen'}
+          onClose={closeEditing}
+        >
           {error && <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {editing === 'new' && templateValues && (
+            <p className="mb-3 text-xs text-slate-400">Alles noch anpassbar – angelegt wird die Aufgabe erst beim Speichern.</p>
+          )}
           <ApplianceForm
-            initialValues={valuesFromAppliance(editing === 'new' ? undefined : editing)}
+            initialValues={editing === 'new' ? (templateValues ?? emptyApplianceFormValues) : valuesFromAppliance(editing)}
             categoryOptions={Array.from(
               new Set(appliances.map((a) => a.category).filter((c) => !defaultApplianceCategories.includes(c))),
             )}
@@ -380,6 +422,38 @@ export default function Haustechnik() {
               <MaintenanceLogForm onSubmit={(values) => handleAddLogEntry(editing, values)} />
             </div>
           )}
+        </Modal>
+      )}
+
+      {pickingTemplate && (
+        <Modal title="Vorlage auswählen" onClose={() => setPickingTemplate(false)}>
+          <p className="mb-3 text-sm text-slate-500">Tippe eine Vorlage an, um sie als Aufgabe zu übernehmen.</p>
+          <ul className="divide-y divide-slate-100">
+            {taskTemplates.map((template) => {
+              const alreadyAdded = appliances.some((a) => a.name.trim().toLowerCase() === template.name.toLowerCase())
+              return (
+                <li key={template.name}>
+                  <button
+                    type="button"
+                    onClick={() => startFromTemplate(template)}
+                    className="flex w-full items-center gap-3 py-2.5 text-left hover:bg-slate-50"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800">{template.name}</p>
+                      <p className="text-xs text-slate-400">
+                        {template.category} · {template.rhythm}
+                      </p>
+                    </div>
+                    {alreadyAdded ? (
+                      <span className="shrink-0 text-[11px] font-medium text-emerald-600">bereits angelegt</span>
+                    ) : (
+                      <span className={`shrink-0 text-lg leading-none ${cat.text}`}>+</span>
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
         </Modal>
       )}
 
