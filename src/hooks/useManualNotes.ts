@@ -41,6 +41,14 @@ const DELETE_MUTATION = /* GraphQL */ `
   }
 `
 
+const CLEAR_DONE_MUTATION = /* GraphQL */ `
+  mutation ClearDoneManualNotes {
+    delete_reminders(where: { is_done: { _eq: true } }) {
+      affected_rows
+    }
+  }
+`
+
 export interface ManualNoteInput {
   title: string
   notes: string
@@ -130,5 +138,14 @@ export function useManualNotes() {
     [load],
   )
 
-  return { notes, loading, error, addNote, updateNote, toggleDone, removeNote }
+  const clearDone = useCallback(async () => {
+    try {
+      await gql(CLEAR_DONE_MUTATION)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Löschen.')
+    }
+  }, [load])
+
+  return { notes, loading, error, addNote, updateNote, toggleDone, removeNote, clearDone }
 }

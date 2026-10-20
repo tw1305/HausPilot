@@ -56,8 +56,9 @@ function NoteRow({
 }
 
 export function MerkzettelSection() {
-  const { notes, loading, error, addNote, updateNote, toggleDone, removeNote } = useManualNotes()
+  const { notes, loading, error, addNote, updateNote, toggleDone, removeNote, clearDone } = useManualNotes()
   const [editing, setEditing] = useState<Reminder | 'new' | null>(null)
+  const [showDone, setShowDone] = useState(false)
   const [values, setValues] = useState<ManualNoteInput>(emptyValues)
   const [saving, setSaving] = useState(false)
 
@@ -141,20 +142,51 @@ export function MerkzettelSection() {
 
           {done.length > 0 && (
             <Card className="mt-2">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wide text-slate-300 mb-1">
-                Erledigt ({done.length})
-              </h3>
-              <ul>
-                {done.map((note) => (
-                  <NoteRow
-                    key={note.id}
-                    note={note}
-                    onToggle={() => void toggleDone(note)}
-                    onEdit={() => startEdit(note)}
-                    onRemove={() => void removeNote(note.id)}
-                  />
-                ))}
-              </ul>
+              <button
+                type="button"
+                onClick={() => setShowDone((v) => !v)}
+                className="flex w-full items-center justify-between text-left"
+                aria-expanded={showDone}
+              >
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Erledigte Aufgaben ({done.length})
+                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className={`w-4 h-4 text-slate-400 transition-transform ${showDone ? 'rotate-180' : ''}`}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+              {showDone && (
+                <>
+                  <ul className="mt-1">
+                    {done.map((note) => (
+                      <NoteRow
+                        key={note.id}
+                        note={note}
+                        onToggle={() => void toggleDone(note)}
+                        onEdit={() => startEdit(note)}
+                        onRemove={() => void removeNote(note.id)}
+                      />
+                    ))}
+                  </ul>
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`Alle ${done.length} erledigten Aufgaben endgültig löschen?`)) void clearDone()
+                      }}
+                      className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-red-500"
+                    >
+                      <IconTrash className="w-3.5 h-3.5" /> Alle löschen
+                    </button>
+                  </div>
+                </>
+              )}
             </Card>
           )}
         </>
