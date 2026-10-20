@@ -41,6 +41,14 @@ const DELETE_MUTATION = /* GraphQL */ `
   }
 `
 
+const CLEAR_DONE_MUTATION = /* GraphQL */ `
+  mutation ClearDoneShoppingItems {
+    delete_shopping_items(where: { is_done: { _eq: true } }) {
+      affected_rows
+    }
+  }
+`
+
 export function useShoppingList() {
   const [items, setItems] = useState<ShoppingItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -111,5 +119,14 @@ export function useShoppingList() {
     [load],
   )
 
-  return { items, loading, error, addItem, toggleDone, removeItem }
+  const clearDone = useCallback(async () => {
+    try {
+      await gql(CLEAR_DONE_MUTATION)
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler beim Aufräumen.')
+    }
+  }, [load])
+
+  return { items, loading, error, addItem, toggleDone, removeItem, clearDone }
 }

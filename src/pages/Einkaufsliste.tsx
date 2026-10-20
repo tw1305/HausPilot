@@ -63,7 +63,7 @@ function ShoppingRow({
 }
 
 export default function Einkaufsliste() {
-  const { items, loading, error, addItem, toggleDone, removeItem } = useShoppingList()
+  const { items, loading, error, addItem, toggleDone, removeItem, clearDone } = useShoppingList()
   const [name, setName] = useState('')
   const [quantity, setQuantity] = useState('')
   const [pickingStore, setPickingStore] = useState(false)
@@ -77,6 +77,12 @@ export default function Einkaufsliste() {
         .map((category) => ({ category, items: open.filter((item) => classifyGroceryItem(item.name) === category) }))
         .filter((group) => group.items.length > 0)
     : []
+
+  // Eingekaufte Artikel verschwinden beim Beenden komplett von der Liste
+  const finishShopping = async () => {
+    setShoppingStore(null)
+    if (done.length > 0) await clearDone()
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -100,7 +106,7 @@ export default function Einkaufsliste() {
       <div className="px-4 pt-5">
       <div className="flex justify-end mb-3">
         {shoppingStore ? (
-          <Button variant="secondary" onClick={() => setShoppingStore(null)}>
+          <Button variant="secondary" onClick={() => void finishShopping()}>
             Einkauf beenden
           </Button>
         ) : (
