@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { loginErrorMessage } from '../lib/nhost'
 import { Button } from '../components/ui/Button'
 import { FormField, Input } from '../components/ui/FormField'
 
@@ -17,8 +18,8 @@ export default function Login() {
     setError(null)
     try {
       await login(name.trim(), password)
-    } catch {
-      setError('Anmeldung fehlgeschlagen. Bitte Haushaltsname und Passwort prüfen.')
+    } catch (err) {
+      setError(loginErrorMessage(err, name))
       setSubmitting(false)
     }
   }

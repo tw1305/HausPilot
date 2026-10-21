@@ -58,6 +58,30 @@ export async function loginWithHousehold(name: string, password: string): Promis
 }
 
 /**
+ * Übersetzt einen fehlgeschlagenen Login in einen verständlichen Grund.
+ * Nhost unterscheidet bewusst nicht zwischen "Haushalt existiert nicht" und
+ * "Passwort falsch" – deshalb wird dort der intern gesuchte Login-Name mit
+ * angezeigt, damit man ihn mit der E-Mail im Nhost-Dashboard vergleichen kann.
+ */
+export function loginErrorMessage(err: unknown, name: string): string {
+  const body = (err as { body?: { error?: string } } | null)?.body
+  const status = (err as { status?: number } | null)?.status
+  switch (body?.error) {
+    case 'invalid-email-password':
+      return `Haushaltsname oder Passwort falsch. Gesucht wurde der Login „${householdSlug(name)}“ – bitte Schreibweise und Passwort prüfen.`
+    case 'disabled-user':
+      return 'Dieser Haushalt ist deaktiviert. Bitte beim Admin melden, damit er freigeschaltet wird.'
+    case 'unverified-user':
+      return 'Dieser Haushalt ist noch nicht bestätigt (E-Mail nicht verifiziert). Bitte beim Admin melden.'
+    case 'invalid-request':
+      return 'Ungültige Anmeldedaten – bitte Haushaltsname und Passwort prüfen.'
+  }
+  if (status === 429) return 'Zu viele Anmeldeversuche. Bitte ein paar Minuten warten und erneut versuchen.'
+  if (err instanceof TypeError) return 'Keine Verbindung zum Server. Bitte Internetverbindung prüfen.'
+  return 'Anmeldung fehlgeschlagen. Bitte Haushaltsname und Passwort prüfen.'
+}
+
+/**
  * Ändert das Passwort des Haushalts selbst. Nhost verlangt für
  * changeUserPassword eine gerade erst bestätigte ("elevated") Sitzung –
  * deshalb wird hier zuerst mit dem aktuellen Passwort neu eingeloggt (das
